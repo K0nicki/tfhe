@@ -1,33 +1,52 @@
 #include "../include/lwe.h"
 #include <random>
 
-LWEParams::LWEParams(int32_t n, double noise_min, double noise_max):
-    n(n),
-    noise_min(noise_min),
-    noise_max(noise_max) {}
+LWEParams::LWEParams(int32_t n, double minNoise, double maxNoise) : n(n),
+                                                                    minNoise(minNoise),
+                                                                    maxNoise(maxNoise) {}
 
 LWEParams::~LWEParams() {}
 
-LWEKey::LWEKey(const LWEParams* params) {
-    this->params = params;
-    this->key = new int32_t[params->n];
+int32_t LWEParams::getLength()
+{
+    return this->n;
 }
 
-LWEKey::~LWEKey() {
+double LWEParams::getMinNoise()
+{
+    return this->minNoise;
+}
+
+double LWEParams::getMaxNoise()
+{
+    return this->maxNoise;
+}
+
+void LWEKey::setKey(int32_t val, int i)
+{
+    this->key[i] = val;
+}
+
+LWEKey::LWEKey(LWEParams *params)
+{
+    this->params = params;
+    this->key = new int32_t[params->getLength()];
+}
+
+LWEKey::~LWEKey()
+{
     delete[] key;
 }
 
-// int32_t LWEParams::getLength() {
-//     return this->n;
-// }
+LWEParams *LWEKey::getParams()
+{
+    return this->params;
+}
 
-// double LWEParams::getNoiseMin() {
-//     return this->noise_min;
-// }
-
-// double LWEParams::getNoiseMax() {
-//     return this->noise_max;
-// }
+int32_t *LWEKey::getLWEKey()
+{
+    return this->key;
+}
 
 /**
  * @brief LWE key generation function
@@ -36,20 +55,16 @@ LWEKey::~LWEKey() {
  * 
  * @param result The LWE secret key
  */
-void lweKeyGen(LWEKey* result) {
-    const int32_t n = result->params->n;
-    // const int32_t n = result->params->getLength();
+void lweKeyGen(LWEKey *result)
+{
+    const int32_t n = result->getParams()->getLength();
     std::uniform_int_distribution<int32_t> distrib(0, 1);
 
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    
+
     for (int i = 0; i < n; i++)
     {
-        result->key[i] = distrib(gen);
+        result->setKey(distrib(gen), i);
     }
-}
-
-int32_t* LWEKey::getLWEKey() {
-    return this->key;
 }
