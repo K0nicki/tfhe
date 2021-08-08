@@ -8,6 +8,7 @@
  * 
  */
 #include <stdint.h>
+#include <random>
 
 /**
  * The main idea is that we can represent the x number as real Torus element

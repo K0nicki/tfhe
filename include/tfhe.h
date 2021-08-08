@@ -8,9 +8,13 @@
  * @copyright Copyright (c) 2021
  * 
  */
+#pragma once
 
 // General variables
 #include "tfhe_core.h"
 
 // LWE functions (Key generation, Encryption, Decryption)
-#include "lwe.h"
+#include "lwe/LWEKey.h"
+#include "lwe/functions.h"
+
+#include "general/functions.h"
