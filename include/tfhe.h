@@ -18,3 +18,6 @@
 #include "lwe/functions.h"
 
 #include "general/functions.h"
+
+// TLWE functions
+#include "tlwe/functions.h"

@@ -30,7 +30,6 @@ void LWESample::setVariance(double value)
 Torus32 *LWESample::getA()
 {
     return this->a;
-    // return &(this->a)[i];
 }
 
 Torus32 LWESample::getB()

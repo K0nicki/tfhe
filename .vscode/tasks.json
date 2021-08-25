@@ -9,8 +9,8 @@
 				// "${fileDirname}/*",
 				"-g",
 				"-o",
-				"${workspaceFolder}/${fileBasenameNoExtension}",
-				"${fileDirname}/main.cpp",
+				"${workspaceFolder}/${fileBasenameNoExtension}.o",
+				"${fileDirname}/lwetest.cpp",
 				"${fileDirname}/lwe/*",
 				"${fileDirname}/general/*"
 			],

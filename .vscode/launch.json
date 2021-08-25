@@ -20,26 +20,45 @@
                 }
             ]
         },
-    {
-        "name": "(gdb) TFHE",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${workspaceFolder}/${fileBasenameNoExtension}",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}",
-        "environment": [],
-        "externalConsole": false,
-        "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "Enable pretty-printing for gdb",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-        ],
-        "preLaunchTask": "C/C++: g++ build tfhe",
-        "miDebuggerPath": "/usr/bin/gdb"
-    }
+        {
+            "name": "(gdb) TFHE - lwe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/lwetest.o.o",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "C/C++: g++ build tfhe",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "(gdb) TFHE - tlwe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tlwetest.o",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
     ]
 }
