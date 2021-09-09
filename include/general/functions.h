@@ -24,7 +24,7 @@ Torus32 addGaussianNoise(Torus32 *message, double sigma);
  * @param Msize     Message space we are working on
  * @return          Aproximated phase - the expected result with some small noise
  */
-Torus32 aproxPhase(Torus32 phase, int32_t Msize);
+Torus32 approxPhase(Torus32 phase, int32_t Msize);
 
 /**
  * @brief 

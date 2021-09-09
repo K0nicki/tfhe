@@ -25,7 +25,7 @@ Torus32 addGaussianNoise(Torus32 *message, double sigma)
     return *message + dtot32(err);
 }
 
-Torus32 aproxPhase(Torus32 phase, int32_t Msize)
+Torus32 approxPhase(Torus32 phase, int32_t Msize)
 {
     uint64_t interval{((UINT64_C(1) << 63) / Msize) * 2};
     uint64_t intervalHalf{(interval / 2)};
@@ -40,6 +40,7 @@ Torus32 aproxPhase(Torus32 phase, int32_t Msize)
     /**
  * @Questions
  * Why we need expand phase to 64 bits? Why we can't do it on 32 bits space?
+ * Because it was uint.
  */
 }
 

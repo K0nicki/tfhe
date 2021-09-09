@@ -6,18 +6,24 @@
  * @brief           Generate random LWE key for the given parameters 
  * 
  * @param result    LWE Key for the result. It must contains initialized LWE Params
+ * 
+ * @cite https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
  */
 void lweKeyGen(LWEKey *result);
 
 /**
- * @brief       Encryption function
- *              To do so we need a message which we want to encrypt, standard deviation for small error
- *              and a secret key
+ * @brief           Encryption function
+ *                  To do so we need a message which we want to encrypt, standard deviation for small error
+ *                  and a secret key
  * 
- * @details     Algorithm relies on masking the secret key with randomly generated vector a<Torus32>.
- *              To the result we just need to add the noise - vector e generated with gaussian deviation funciton (definied in general/functions)
- *              After all computations we just need to update noise (but what is the value of the noise? I thought it is currentNoise * noise factor - is it true?)
+ * @details         Algorithm relies on masking the secret key with randomly generated vector a<Torus32>.
+ *                  To the result we just need to add the noise - vector e generated with gaussian deviation funciton (definied in general/functions)
+ *                  After all computations we just need to update noise (but what is the value of the noise? I thought it is currentNoise * noise factor - is it true?)
  * 
+ * @param result    The encrypted LWE message as LWESample
+ * @param message   Torus32 message to encrypt
+ * @param alpha     Standard deviation alpha
+ * @param key       The secret key, necessary to encrypt the message
  */
 void lweEncrypt(LWESample *sample, Torus32 *message, double noise, LWEKey *key);
 

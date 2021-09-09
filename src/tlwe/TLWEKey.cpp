@@ -1,25 +1,24 @@
 #include "../../include/tlwe/TLWEKey.h"
+#include <array>
 
-IntPolynomial* init_IntPolynomial_array(int32_t arrayLength, int32_t N) {
-    IntPolynomial* arr = (IntPolynomial*) malloc(arrayLength*sizeof(IntPolynomial));    // Allocate space for polynomials
-    for (int i = 0; i < arrayLength; i++)
-       new(arr+i) IntPolynomial(N);                                                     // Initiate it
-    return arr;                                                                         // Return address to the first element
-}
-
-TLWEKey::TLWEKey(TLWEParams* params):
-    params(params) {
-        key = init_IntPolynomial_array(params->getPolyAmount(), params->getDegree());
+TLWEKey::TLWEKey(TLWEParams *params) : params(params)
+{
+    for (size_t i = 0; i < this->key.size(); i++)
+    {
+        key.at(i) = new IntPolynomial{params->getDegree()};
     }
+}
 
 TLWEKey::~TLWEKey() {}
 
-TLWEParams* TLWEKey::getTLWEParams() { return (this->params); }
+TLWEParams *TLWEKey::getTLWEParams() { return (this->params); }
 
-IntPolynomial* TLWEKey::getKey(){
-    return this->key;
+IntPolynomial *TLWEKey::getKey()
+{
+    return *(this->key.data());
 }
 
-IntPolynomial* TLWEKey::getKey(int i){
-    return &(this->key)[i];
+IntPolynomial *TLWEKey::getKey(int i)
+{
+    return this->key.at(i);
 }

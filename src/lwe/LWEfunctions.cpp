@@ -1,12 +1,6 @@
 #include "../../include/lwe/functions.h"
 
-/**
- * @brief LWE key generation function
- * 
- * @cite https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
- * 
- * @param result The LWE secret key
- */
+
 void lweKeyGen(LWEKey *result)
 {
     const int32_t n{result->getParams()->getLength()};
@@ -19,22 +13,14 @@ void lweKeyGen(LWEKey *result)
         result->setKey(distrib(gen), i);
 }
 
-/**
- * Encryption with a given noise
- * 
- * @param result    The encrypted LWE message as LWESample
- * @param message   Torus32 message to encrypt
- * @param alpha     Standard deviation alpha
- * @param key       The secret key, necessary to encrypt the message
- */
 void lweEncrypt(LWESample *result, Torus32 *message, double alpha, LWEKey *key)
 {
     const int32_t n{key->getParams()->getLength()};
     std::uniform_int_distribution<Torus32> distrib(INT32_MIN, INT32_MAX);
     Torus32 a;
 
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::random_device rd; 
+    std::mt19937 gen(rd());
 
     result->setB(addGaussianNoise(message, alpha));
     for (int i = 0; i < n; i++)
@@ -62,7 +48,7 @@ Torus32 lwePhase(LWESample *sample, LWEKey *key)
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize)
 {
     Torus32 phi{lwePhase(sample, key)};
-    return aproxPhase(phi, Msize);
+    return approxPhase(phi, Msize);
 }
 
 void lweClear(LWESample *result, LWEParams *params)

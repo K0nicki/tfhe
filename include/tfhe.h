@@ -18,6 +18,7 @@
 #include "lwe/functions.h"
 
 #include "general/functions.h"
+#include "general/polyfunctions.h"
 
 // TLWE functions
 #include "tlwe/functions.h"

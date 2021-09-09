@@ -1,5 +1,6 @@
 #pragma once
 #include "../tfhe_core.h"
+#include "../general/secparams.h"
 
 /**
  * @brief               Class which contains LWE parameters such as lenght, min and max noise

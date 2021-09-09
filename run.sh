@@ -32,10 +32,10 @@ fi
 
 if [ "$LWE" != "" ] && [ $LWE -eq 1 ]; then
     outputFile="lwetest.o"
-    g++ -g -o $outputFile src/lwetest.cpp src/lwe/* src/general/*
+    g++ -g -o $outputFile src/lwetest.cpp src/lwe/* src/general/* src/fft/SPQLIOS/{*avx.s,fft_processor_spqlios.cpp,spqlios-fft-impl.cpp}
 elif [ "$TLWE" != "" ] && [ $TLWE -eq 1 ]; then
     outputFile="tlwetest.o"
-    g++ -g -o $outputFile src/tlwetest.cpp src/lwe/* src/tlwe/* src/general/*
+    g++ -g -o $outputFile src/tlwetest.cpp src/lwe/* src/tlwe/* src/general/* src/fft/SPQLIOS/{*avx.s,fft_processor_spqlios.cpp,spqlios-fft-impl.cpp}
 fi
 
 ./$outputFile

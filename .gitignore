@@ -2,6 +2,10 @@
 ### Not mine tfhe
 good-tfhe/
 
+seccamp/
+
+*.sh
+
 ##### Windows
 # Windows thumbnail cache files
 Thumbs.db

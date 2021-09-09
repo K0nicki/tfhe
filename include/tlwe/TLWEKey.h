@@ -1,3 +1,4 @@
+#pragma once
 #include "TLWEParams.h"
 #include "../general/polynomials.h"
 
@@ -5,7 +6,7 @@ class TLWEKey
 {
 private:
     TLWEParams *params;
-    IntPolynomial *key;
+    std::array<IntPolynomial*, 2> key;
 public:
     // Getters
     TLWEParams* getTLWEParams();

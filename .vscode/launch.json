@@ -24,7 +24,7 @@
             "name": "(gdb) TFHE - lwe",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/lwetest.o.o",
+            "program": "${workspaceFolder}/lwetest.o",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -37,9 +37,7 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ],
-            "preLaunchTask": "C/C++: g++ build tfhe",
-            "miDebuggerPath": "/usr/bin/gdb"
+            ]
         },
         {
             "name": "(gdb) TFHE - tlwe",
