@@ -6,13 +6,14 @@
  * 
  * @param result 
  */
-void tlweKeyGen(TLWEKey* result);
+TLWEKey tlweKeyGen(TLWEParams * params);
 
-void tlweEncrypt(TLWESample* result, TorusPolynomial* message, double alpha, TLWEKey* key);
+void tlweBaseEncryption(TLWESample *result, double alpha, TLWEKey *key);
+TLWESample tlweEncrypt(TorusPolynomial* message, double alpha, TLWEKey* key);
 
 // Phi = b - a*s
-void tlweGetPhase(TorusPolynomial* phase, TLWESample* sample, TLWEKey* key);
+TorusPolynomial tlweGetPhase(TLWESample* sample, TLWEKey* key);
 
-void tlweApproxPhase(TorusPolynomial* message, TorusPolynomial* phase, int32_t M, int32_t N);
+TorusPolynomial tlweApproxPhase(TorusPolynomial* phase, int32_t M, int32_t N);
 
-void tlweDecrypt(TorusPolynomial* result, TLWESample* sample, TLWEKey* key, int32_t M);
+TorusPolynomial tlweDecrypt(TLWESample* sample, TLWEKey* key, int32_t M);

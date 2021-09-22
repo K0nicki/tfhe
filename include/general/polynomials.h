@@ -45,10 +45,6 @@ public:
 
     // Setters
     void setCoefficient(int i, int32_t value);
-
-    // forbidden
-    TorusPolynomial(TorusPolynomial&) = delete;
-    TorusPolynomial* operator=(TorusPolynomial&) = delete;
 };
 
 /**

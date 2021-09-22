@@ -1,10 +1,11 @@
 #include "../../include/tlwe/functions.h"
 #include "../../include/general/functions.h"
 
-void tlweKeyGen(TLWEKey *result)
+TLWEKey tlweKeyGen(TLWEParams *params)
 {
-    int32_t N = result->getTLWEParams()->getDegree();
-    int32_t k = result->getTLWEParams()->getPolyAmount();
+    int32_t N = params->getDegree();
+    int32_t k = params->getPolyAmount();
+    TLWEKey key{params};
     std::uniform_int_distribution<int32_t> distrib(0, 1);
 
     std::random_device rd;
@@ -12,7 +13,9 @@ void tlweKeyGen(TLWEKey *result)
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < N; j++)
-            (result->getKey(i))->setCoefficient(distrib(gen), j);
+            ((&key)->getKey(i))->setCoefficient(distrib(gen), j);
+
+    return key;
 }
 
 void tlweBaseEncryption(TLWESample *result, double alpha, TLWEKey *key)
@@ -32,45 +35,57 @@ void tlweBaseEncryption(TLWESample *result, double alpha, TLWEKey *key)
     result->setNoise(alpha * alpha);
 }
 
-void tlweEncrypt(TLWESample *result, TorusPolynomial *message, double alpha, TLWEKey *key)
+TLWESample tlweEncrypt( TorusPolynomial *message, double alpha, TLWEKey *key)
 {
     int32_t N = key->getTLWEParams()->getDegree();
     int32_t rCoef;
     int32_t mCoef;
+    TLWESample result{key->getTLWEParams()};
 
     // prepare tlwe Sample object (add random noise)
-    tlweBaseEncryption(result, alpha, key);
+    tlweBaseEncryption((&result), alpha, key);
 
     for (int i = 0; i < N; i++)
     {
-        rCoef = result->getB()->getCoef(i);
+        rCoef = (&result)->getB()->getCoef(i);
         mCoef = message->getCoef(i);
-        result->getB()->setCoefficient(i, rCoef + mCoef);
+        (&result)->getB()->setCoefficient(i, rCoef + mCoef);
     }
+
+    return result;
 }
 
-void tlweGetPhase(TorusPolynomial *phase, TLWESample *sample, TLWEKey *key)
+TorusPolynomial tlweGetPhase(TLWESample *sample, TLWEKey *key)
 {
     int32_t k = key->getTLWEParams()->getPolyAmount();
     int32_t N = key->getTLWEParams()->getDegree();
+    TorusPolynomial phase{key->getTLWEParams()->getDegree()};
 
     // phi = b
-    torusPolyCopy(phase, sample->getB());      
+    torusPolyCopy((&phase), sample->getB());      
 
     for (int i = 0; i < k; i++)
     {
         // phi = b - a*s
-        torusPolyMulSubFD(phase, key->getKey(i), sample->getA(i));
+        torusPolyMulSubFD((&phase), key->getKey(i), sample->getA(i));
     }
+
+    return phase;
 }
 
-void tlweApproxPhase(TorusPolynomial *message, TorusPolynomial *phase, int32_t M, int32_t N)
+TorusPolynomial tlweApproxPhase(TorusPolynomial *phase, int32_t M, int32_t N)
 {
+    TorusPolynomial message{N}; 
     for (int i = 0; i < N; i++)
-        message->setCoefficient(i, approxPhase(phase->getCoef(i), M));
+        (&message)->setCoefficient(i, approxPhase(phase->getCoef(i), M));
+    
+    return message;
 }
 
-void tlweDecrypt(TorusPolynomial* result, TLWESample* sample, TLWEKey* key, int32_t M) {
-    tlweGetPhase(result, sample, key);
-    tlweApproxPhase(result, result, M, key->getTLWEParams()->getDegree());
+TorusPolynomial tlweDecrypt(TLWESample* sample, TLWEKey* key, int32_t M) {
+    TorusPolynomial result{key->getTLWEParams()->getDegree()}; 
+    result = tlweGetPhase(sample, key);
+    result = tlweApproxPhase(&result, M, key->getTLWEParams()->getDegree());
+
+    return result;
 }

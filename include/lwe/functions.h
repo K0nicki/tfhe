@@ -9,7 +9,7 @@
  * 
  * @cite https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
  */
-void lweKeyGen(LWEKey *result);
+LWEKey lweKeyGen();
 
 /**
  * @brief           Encryption function
@@ -25,7 +25,7 @@ void lweKeyGen(LWEKey *result);
  * @param alpha     Standard deviation alpha
  * @param key       The secret key, necessary to encrypt the message
  */
-void lweEncrypt(LWESample *sample, Torus32 *message, double noise, LWEKey *key);
+LWESample lweEncrypt(Torus32 *message, double noise, LWEKey *key);
 
 /**
  * @brief           Get phase of the encrypted in Torus32 message
@@ -51,7 +51,7 @@ Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize);
  * @brief   Function clear LWE Sample object
  *          Set all variable to default values
  */
-void lweClear(LWESample *result, LWEParams *params);
+LWESample lweClear(LWEParams *params);
 
 /**
  * @brief Add two LWE Samples
@@ -60,7 +60,7 @@ void lweClear(LWESample *result, LWEParams *params);
  * @param sample    This sample will be added to the result
  * @param params    Provide information about the key lenght
  */
-void lweAdd(LWESample *result, LWESample *sample, LWEParams *params);
+LWESample lweAdd(LWESample *sample, LWEParams *params);
 
 /**
  * @brief   Subtract two LWE Samples
@@ -69,10 +69,10 @@ void lweAdd(LWESample *result, LWESample *sample, LWEParams *params);
  * @param sample    This sample will be substracted from the result
  * @param params    Provide information about the key lenght
  */
-void lweSub(LWESample *result, LWESample *sample, LWEParams *params);
+LWESample lweSub(LWESample *sample, LWEParams *params);
 
 /**
  * @brief    Copy LWE samples
  * 
  */
-void lweCopy(LWESample *result, LWESample *sample, LWEParams *params);
+LWESample lweCopy(LWESample *sample, LWEParams *params);

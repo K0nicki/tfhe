@@ -31,6 +31,5 @@ public:
 
     LWESample(LWEParams *params);
     ~LWESample();
-    LWESample(LWESample &) = delete;
     LWESample &operator=(LWESample &) = delete;
 };

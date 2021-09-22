@@ -22,17 +22,17 @@ int main(int argc, char const *argv[])
     std::vector<TLWEKey *> allKeys1024 = {&key1024_1, &key1024_2};
 
     int32_t M = 8;
-    double alpha = 1. / (10 * M);;
+    double alpha = 1. / (10 * M);
+    ;
     int ok = 0;
     int warning = 0;
 
-    for (TLWEKey *key : allKeys1024)
+    for (TLWEParams *params : allParams1024)
     {
-        TLWEParams *params = key->getTLWEParams();
-        int32_t N = key->getTLWEParams()->getDegree();
+        int32_t N = params->getDegree();
         TLWESample sample{params};
 
-        tlweKeyGen(key);
+        TLWEKey key{tlweKeyGen(params)};
         TorusPolynomial message{N};
         TorusPolynomial decrypt{N};
 
@@ -50,21 +50,21 @@ int main(int argc, char const *argv[])
         //               << std::endl;
         // }
 
-        tlweEncrypt(&sample, &message, alpha, key);
-        tlweDecrypt(&decrypt, &sample, key, M);
+        sample = tlweEncrypt(&message, alpha, &key);
+        decrypt = tlweDecrypt(&sample, &key, M);
 
         for (int i = 0; i < N; i++)
         {
             if ((&message)->getCoef(i) != (&decrypt)->getCoef(i))
             {
-                // std::cout << "Error!\tPosition: " << i << std::endl;
-                // std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
+                std::cout << "Error!\tPosition: " << i << std::endl;
+                std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
                 warning++;
             }
             else
             {
-                // std::cout << "OK!\tPosition: " << i << std::endl;
-                // std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
+                std::cout << "OK!\tPosition: " << i << std::endl;
+                std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
                 ok++;
             }
         }

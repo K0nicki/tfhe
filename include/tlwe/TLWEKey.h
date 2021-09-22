@@ -16,8 +16,4 @@ public:
     // Setters
     TLWEKey(TLWEParams* params);
     ~TLWEKey();
-
-    // forbidden
-    TLWEKey(TLWEKey&) = delete;
-    TLWEKey* operator=(TLWEKey&) = delete;
 };

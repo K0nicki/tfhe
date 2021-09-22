@@ -13,23 +13,25 @@ void lweKeyGen(LWEKey *result)
         result->setKey(distrib(gen), i);
 }
 
-void lweEncrypt(LWESample *result, Torus32 *message, double alpha, LWEKey *key)
+LWESample lweEncrypt( Torus32 *message, double alpha, LWEKey *key)
 {
     const int32_t n{key->getParams()->getLength()};
+    LWESample result{key->getParams()};
     std::uniform_int_distribution<Torus32> distrib(INT32_MIN, INT32_MAX);
     Torus32 a;
 
     std::random_device rd; 
     std::mt19937 gen(rd());
 
-    result->setB(addGaussianNoise(message, alpha));
+    (&result)->setB(addGaussianNoise(message, alpha));
     for (int i = 0; i < n; i++)
     {
-        result->setA(distrib(gen), i);
-        result->setB(result->getB() + ((result->getA())[i] * (key->getLWEKey())[i]));
+        (&result)->setA(distrib(gen), i);
+        (&result)->setB((&result)->getB() + (((&result)->getA())[i] * (key->getLWEKey())[i]));
     }
 
-    result->setVariance(alpha * alpha);
+    (&result)->setVariance(alpha * alpha);
+    return result;
 }
 
 Torus32 lwePhase(LWESample *sample, LWEKey *key)

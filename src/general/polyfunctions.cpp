@@ -15,17 +15,19 @@ void torusPolyifft (std::array<int32_t, N>* result, FftPoly* poly) {
     fftplvl1.execute_direct_torus32(result->data(), poly->getArray());
 }
 
-void mulPolyFD(FftPoly* result, FftPoly* a, FftPoly* b) {
+FftPoly mulPolyFD(FftPoly* a, FftPoly* b) {
     int N = a->getLength();
-
+    FftPoly result;
+    
     for (int i = 0; i < N/2; i++)
     {
         double aImg_bImg = a->getCoef(i+(N/2)) * b->getCoef(i+(N/2));
         double aReal_bImg = a->getCoef(i) * b->getCoef(i+(N/2));
 
-        result->setCoef(i, a->getCoef(i) * b->getCoef(i) - aImg_bImg);
-        result->setCoef(i+(N/2), a->getCoef(i+(N/2)) * b->getCoef(i) + aReal_bImg);
+        (&result)->setCoef(i, a->getCoef(i) * b->getCoef(i) - aImg_bImg);
+        (&result)->setCoef(i+(N/2), a->getCoef(i+(N/2)) * b->getCoef(i) + aReal_bImg);
     }
+    return result;
 }
 
 void torusPolyAddTo(TorusPolynomial* result, TorusPolynomial* a) {
@@ -72,7 +74,7 @@ void torusPolyMulFD(TorusPolynomial* result, IntPolynomial* poly1, TorusPolynomi
     torusPolyfft<DEF_N>(&fft2, poly2->getCoefAsArray());
 
     // Multiply vectors
-    mulPolyFD(&fft1, &fft1, &fft2);
+    fft1 = mulPolyFD(&fft1, &fft2);
     torusPolyifft<DEF_N>((&poly1ifft)->getCoefAsArray(), &fft1);
     torusPolyifft<DEF_N>((&poly2ifft)->getCoefAsArray(), &fft2);
 
@@ -93,7 +95,7 @@ void torusPolyMulSubFD(TorusPolynomial* result, IntPolynomial* poly1, TorusPolyn
     torusPolyfft<DEF_N>(&fft2, poly2->getCoefAsArray());
 
     // Multiply vectors
-    mulPolyFD(&fft1, &fft1, &fft2);
+    fft1 = mulPolyFD(&fft1, &fft2);
 
     // Do inverse fft
     torusPolyifft<DEF_N>((&tmp)->getCoefAsArray(), &fft1);

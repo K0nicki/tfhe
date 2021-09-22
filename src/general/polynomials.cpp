@@ -2,78 +2,99 @@
 
 IntPolynomial::IntPolynomial() {}
 
-IntPolynomial::IntPolynomial(int32_t N) {
+IntPolynomial::IntPolynomial(int32_t N)
+{
     this->N = DEF_N;
     for (int i = 0; i < this->coefficients.size(); i++)
-            coefficients[i] = 0;
+        coefficients[i] = 0;
 }
 
-IntPolynomial::~IntPolynomial(){
+IntPolynomial::~IntPolynomial()
+{
 }
 
-void IntPolynomial::setCoefficient(int32_t value, int i) {
+void IntPolynomial::setCoefficient(int32_t value, int i)
+{
     this->coefficients[i] = value;
 }
 
-std::array<int32_t, DEF_N>* IntPolynomial::getCoefAsArray() {
+std::array<int32_t, DEF_N> *IntPolynomial::getCoefAsArray()
+{
     return &(this->coefficients);
 }
 
-int32_t* IntPolynomial::getCoef() {
+int32_t *IntPolynomial::getCoef()
+{
     return this->coefficients.data();
 }
 
-int32_t IntPolynomial::getCoef(int i) {
+int32_t IntPolynomial::getCoef(int i)
+{
     return (this->coefficients)[i];
 }
 
 // I know, it ignores N parameter
-TorusPolynomial::TorusPolynomial(int32_t N) {
+TorusPolynomial::TorusPolynomial(int32_t N)
+{
     this->N = DEF_N;
     for (int i = 0; i < this->TorusCoefficients.size(); i++)
-            TorusCoefficients[i] = 0;
+        TorusCoefficients[i] = 0;
 }
 
-TorusPolynomial::~TorusPolynomial() {
+TorusPolynomial::~TorusPolynomial()
+{
 }
 
-int32_t TorusPolynomial::getLenght() {
+int32_t TorusPolynomial::getLenght()
+{
     return this->N;
 }
 
-void TorusPolynomial::setCoefficient( int i, int32_t value) {
+void TorusPolynomial::setCoefficient(int i, int32_t value)
+{
     this->TorusCoefficients[i] = value;
 }
 
-int32_t* TorusPolynomial::getCoef() {
+int32_t *TorusPolynomial::getCoef()
+{
     return this->TorusCoefficients.data();
 }
 
-int32_t TorusPolynomial::getCoef(int i) {
+int32_t TorusPolynomial::getCoef(int i)
+{
     return this->TorusCoefficients.at(i);
 }
 
-std::array<Torus32, DEF_N>* TorusPolynomial::getCoefAsArray() {
+std::array<Torus32, DEF_N> *TorusPolynomial::getCoefAsArray()
+{
     return &(this->TorusCoefficients);
 }
 
-FftPoly::FftPoly() {}
+FftPoly::FftPoly()
+{
+    for (int i = 0; i < this->data.size(); i++)
+        data.at(i) = 0;
+}
 FftPoly::~FftPoly() {}
 
-double* FftPoly::getArray() {
+double *FftPoly::getArray()
+{
     return this->data.data();
 }
 
-double FftPoly::getCoef(int i) {
-    if (i >= DEF_N )
+double FftPoly::getCoef(int i)
+{
+    if (i >= DEF_N)
         throw "FftPoly got i greater than DEF_N";
-    return *((this->data.data())+i);
+    return *((this->data.data()) + i);
 }
 
-int FftPoly::getLength() {
+int FftPoly::getLength()
+{
     return DEF_N;
 }
 
-void FftPoly::setCoef(int i, double value) {
+void FftPoly::setCoef(int i, double value)
+{
     this->data[i] = value;
 }
