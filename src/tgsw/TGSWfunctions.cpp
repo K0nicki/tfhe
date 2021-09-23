@@ -52,7 +52,7 @@ TGSWSampleFft tgswEncryptFft(TGSWSample *sample, int32_t msg, double alpha, TGSW
 }
 
 template <int32_t N = DEF_N, int32_t l = DEF_l, int32_t bg = DEF_Bg>
-std::array<std::array<uint32_t, N>, 2 * l> Decomposition(TGSWSample *sample, TGSWKey *key)
+std::array<std::array<uint32_t, N>, 2 * l> decomposition(TGSWSample *sample, TGSWKey *key)
 {
     std::array<std::array<uint32_t, N>, 2 * l> decompVect, 
     int32_t mask = key->getTGSWparams()->getMask();
@@ -73,5 +73,17 @@ std::array<std::array<uint32_t, N>, 2 * l> Decomposition(TGSWSample *sample, TGS
     }
 
     return decompVect;
+}
+
+template <int32_t N = DEF_N, int32_t l = DEF_l, int32_t bg = DEF_Bg>
+std::array<std::array<double,N>,2*l> decompositionFft(TGSWSample *sample, TGSWKey *key) {
+    std::array<FftPoly,2*l> decompVectFft;
+
+    std::array<std::array<uint32_t, N>, 2 * l> result = decomposition(sample, key);
+
+    for (int i = 0; i < 2*l; i++)
+        torusPolyfft(decompVectFft.at(i),result);
+    
+    return decompVectFft;
 }
 
