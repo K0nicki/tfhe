@@ -4,21 +4,32 @@
 TLWEKey::TLWEKey(TLWEParams *params) : params(params)
 {
     for (size_t i = 0; i < this->key.size(); i++)
-    {
-        key.at(i) = new IntPolynomial{params->getDegree()};
-    }
+        key.at(i) = new IntPolynomial;
 }
 
 TLWEKey::~TLWEKey() {}
 
-TLWEParams *TLWEKey::getTLWEParams() { return (this->params); }
-
-IntPolynomial *TLWEKey::getKey()
+TLWEKey &TLWEKey::operator=(TLWEKey &other)
 {
-    return *(this->key.data());
+    for (int i = 0; i < key.size(); i++)
+        this->key[i] = other.key[i];
+
+    this->params = other.params;
+
+    return *this;
 }
 
-IntPolynomial *TLWEKey::getKey(int i)
+TLWEParams *TLWEKey::getTLWEParams()
 {
-    return this->key.at(i);
+    return this->params;
+}
+
+IntPolynomial *TLWEKey::getIntKey()
+{
+    return key.at(0);
+}
+
+IntPolynomial *TLWEKey::getIntKey(int i)
+{
+    return key.at(i);
 }

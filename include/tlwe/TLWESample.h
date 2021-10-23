@@ -12,13 +12,18 @@ private:
     double current_noise;
     int32_t k;
 public:
+    TLWESample();
     TLWESample(TLWEParams* params);
     ~TLWESample();
 
     // Setters
     void setNoise(double);
+    void setA(int i, TorusPolynomial* poly);
+    void setB();
+    void initSampleWthZero();
 
     // Getters
+    double getNoise();
     TorusPolynomial* getA(int i);
     TorusPolynomial* getB();
     TorusPolynomial* getB(int i);

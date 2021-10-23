@@ -1,12 +1,18 @@
 #include "../../include/tgsw/TGSWSampleFft.h"
+#include "../../include/general/polyfunctions.h"
+
+TGSWSampleFft::TGSWSampleFft() {}
 
 TGSWSampleFft::TGSWSampleFft(TGSWSample* sample)
 {
-    this->setDecompLength(sample->getDecompLength());
-    this->setPolyNumber(sample->getPolyNumber());
-    // for (int i = 0; i < 2*DEF_l; i++)
+    this->l = sample->getDecompLength();
+    this->k = sample->getPolyNumber();
+
+    // TODO: zrobić fft z wejściowego sampla
+    // // TODO: Walidacja pętli ????
+    // for (int i = 0; i < 2*l; i++)
     //     for (int j = 0; j < 2; j++)
-    //         fftSamples.at(i).at(j) = new FftPoly;        
+    //         torusPolyfft<DEF_N>(this->getPoly(i, j), sample->getSampleAt(i)->getA(j)->getCoefAsArray());
 }
 
 TGSWSampleFft::~TGSWSampleFft()
@@ -33,4 +39,13 @@ void TGSWSampleFft::setDecompLength(int32_t value) {
 
 void TGSWSampleFft::setPolyNumber(int32_t value) {
     this->k = value;
+}
+
+void TGSWSampleFft::initTGSWFftSample(TGSWSample* sample) {
+    int32_t l = sample->getDecompLength();
+    int32_t k = sample->getPolyNumber();
+
+    for (int i = 0; i < 2*DEF_l; i++)
+        for (int j = 0; j < 2; j++)
+            torusPolyfft<DEF_N>(&fftSamples[i][j], sample->getSampleAt(i)->getA(j)->getCoefAsArray());
 }

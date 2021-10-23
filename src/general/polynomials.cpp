@@ -1,19 +1,31 @@
 #include "../../include/general/polynomials.h"
 
-IntPolynomial::IntPolynomial() {}
-
-IntPolynomial::IntPolynomial(int32_t N)
+IntPolynomial::IntPolynomial()
 {
     this->N = DEF_N;
     for (int i = 0; i < this->coefficients.size(); i++)
         coefficients[i] = 0;
 }
 
-IntPolynomial::~IntPolynomial()
-{
+IntPolynomial::IntPolynomial(std::array<int32_t, DEF_N> coefficients) {
+    this->N = DEF_N;
+    for (int i = 0; i < this->coefficients.size(); i++)
+        this->coefficients[i] = coefficients[i];
 }
 
-void IntPolynomial::setCoefficient(int32_t value, int i)
+IntPolynomial::~IntPolynomial() {}
+
+IntPolynomial &IntPolynomial::operator=(IntPolynomial &other)
+{
+    for (int i = 0; i < this->coefficients.size(); i++)
+        this->coefficients[i] = other.coefficients[i];
+
+    this->N = other.N;
+
+    return *this;
+}
+
+void IntPolynomial::setCoefficient(int i, int32_t value)
 {
     this->coefficients[i] = value;
 }
@@ -30,7 +42,7 @@ int32_t *IntPolynomial::getCoef()
 
 int32_t IntPolynomial::getCoef(int i)
 {
-    return (this->coefficients)[i];
+    return this->coefficients.at(i);
 }
 
 // I know, it ignores N parameter
@@ -41,9 +53,14 @@ TorusPolynomial::TorusPolynomial(int32_t N)
         TorusCoefficients[i] = 0;
 }
 
-TorusPolynomial::~TorusPolynomial()
+TorusPolynomial::TorusPolynomial()
 {
+    this->N = DEF_N;
+    for (int i = 0; i < this->TorusCoefficients.size(); i++)
+        TorusCoefficients[i] = 0;
 }
+
+TorusPolynomial::~TorusPolynomial() {}
 
 int32_t TorusPolynomial::getLenght()
 {
@@ -84,9 +101,7 @@ double *FftPoly::getArray()
 
 double FftPoly::getCoef(int i)
 {
-    if (i >= DEF_N)
-        throw "FftPoly got i greater than DEF_N";
-    return *((this->data.data()) + i);
+    return data.at(i);
 }
 
 int FftPoly::getLength()

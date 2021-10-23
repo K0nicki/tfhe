@@ -6,14 +6,17 @@ class TLWEKey
 {
 private:
     TLWEParams *params;
-    std::array<IntPolynomial*, 2> key;
+    std::array<IntPolynomial *, 2> key;
+
 public:
     // Getters
-    TLWEParams* getTLWEParams();
-    IntPolynomial* getKey();
-    IntPolynomial* getKey(int i);
+    TLWEParams *getTLWEParams();
+    IntPolynomial *getIntKey();
+    IntPolynomial *getIntKey(int i);
 
     // Setters
-    TLWEKey(TLWEParams* params);
+
+    TLWEKey(TLWEParams *params);
     ~TLWEKey();
+    TLWEKey &operator=(TLWEKey &);
 };

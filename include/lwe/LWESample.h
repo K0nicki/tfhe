@@ -14,12 +14,13 @@
 class LWESample
 {
 private:
-    Torus32 *a;
+    Torus32* a;
     Torus32 b;
     double currentNoise;
 
 public:
     //Getters
+    Torus32 getA(int i);
     Torus32 *getA();
     Torus32 getB();
     double getCurrentNoise();
@@ -29,7 +30,7 @@ public:
     void setA(Torus32 value, int i);
     void setVariance(double value);
 
+    LWESample();
     LWESample(LWEParams *params);
     ~LWESample();
-    LWESample &operator=(LWESample &) = delete;
 };

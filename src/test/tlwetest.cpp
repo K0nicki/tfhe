@@ -1,7 +1,8 @@
-#include "../include/tfhe.h"
+#include "../../include/tfhe.h"
 #include <iostream>
 #include <inttypes.h>
 #include <vector>
+#include <cassert>
 
 int main(int argc, char const *argv[])
 {
@@ -23,21 +24,23 @@ int main(int argc, char const *argv[])
 
     int32_t M = 8;
     double alpha = 1. / (10 * M);
-    ;
-    int ok = 0;
-    int warning = 0;
 
     for (TLWEParams *params : allParams1024)
     {
         int32_t N = params->getDegree();
         TLWESample sample{params};
 
-        TLWEKey key{tlweKeyGen(params)};
+        TLWEKey key{params};
+        tlweKeyGen(&key, params);
         TorusPolynomial message{N};
+        TorusPolynomial testvect{N};
         TorusPolynomial decrypt{N};
 
         for (int i = 0; i < N; i++)
-            (&message)->setCoefficient(i, switchToTorus32(rand() % M, M));
+        {
+            message.setCoefficient(i, switchToTorus32(rand() % M, M));
+            testvect.setCoefficient(i, switchToTorus32(rand() % M, M));
+        }
 
         // for (int i = 0; i < k; i++)
         // {
@@ -51,30 +54,25 @@ int main(int argc, char const *argv[])
         // }
 
         sample = tlweEncrypt(&message, alpha, &key);
+        TLWESample sample2 = tlweEncrypt(&testvect, alpha, &key);
+
+        if (true)
+        {
+            for (int j = 0; j < params->getPolyAmount(); j++)
+                for (int i = 0; i < N; i++)
+                    sample.getA(j)->setCoefficient(i, sample.getA(j)->getCoef(i) + sample2.getA(j)->getCoef(i));
+            for (int i = 0; i < N; i++)
+                sample.getB()->setCoefficient(i, sample.getB()->getCoef(i) + sample2.getB()->getCoef(i));
+        
+        }
+
         decrypt = tlweDecrypt(&sample, &key, M);
 
         for (int i = 0; i < N; i++)
         {
-            if ((&message)->getCoef(i) != (&decrypt)->getCoef(i))
-            {
-                std::cout << "Error!\tPosition: " << i << std::endl;
-                std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
-                warning++;
-            }
-            else
-            {
-                std::cout << "OK!\tPosition: " << i << std::endl;
-                std::cout << (&message)->getCoef(i) << " vs " << (&decrypt)->getCoef(i) << std::endl;
-                ok++;
-            }
+            assert((message.getCoef(i) + testvect.getCoef(i)) == decrypt.getCoef(i));
         }
-        if (ok == N)
-        {
-            std::cout << "PASS! " << std::endl;
-        }
-
-        std::cout << "OKs: " << ok << std::endl;
-        std::cout << "WARNINGs: " << warning << std::endl;
+        std::cout << "PASS! " << std::endl;
     }
     return 0;
 }

@@ -51,7 +51,7 @@ Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize);
  * @brief   Function clear LWE Sample object
  *          Set all variable to default values
  */
-LWESample lweClear(LWEParams *params);
+void lweClear(LWESample* result, LWEParams *params);
 
 /**
  * @brief Add two LWE Samples
@@ -60,7 +60,7 @@ LWESample lweClear(LWEParams *params);
  * @param sample    This sample will be added to the result
  * @param params    Provide information about the key lenght
  */
-LWESample lweAdd(LWESample *sample, LWEParams *params);
+void lweAdd(LWESample *a, LWESample *b, LWEParams *params);
 
 /**
  * @brief   Subtract two LWE Samples
@@ -69,10 +69,10 @@ LWESample lweAdd(LWESample *sample, LWEParams *params);
  * @param sample    This sample will be substracted from the result
  * @param params    Provide information about the key lenght
  */
-LWESample lweSub(LWESample *sample, LWEParams *params);
+void lweSub(LWESample *a, LWESample *b, LWEParams *params);
 
 /**
  * @brief    Copy LWE samples
  * 
  */
-LWESample lweCopy(LWESample *sample, LWEParams *params);
+void lweCopy(LWESample *a, LWESample *b, LWEParams *params);

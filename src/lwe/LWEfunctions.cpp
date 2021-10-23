@@ -13,7 +13,7 @@ void lweKeyGen(LWEKey *result)
         result->setKey(distrib(gen), i);
 }
 
-LWESample lweEncrypt( Torus32 *message, double alpha, LWEKey *key)
+LWESample lweEncrypt(Torus32 *message, double alpha, LWEKey *key)
 {
     const int32_t n{key->getParams()->getLength()};
     LWESample result{key->getParams()};

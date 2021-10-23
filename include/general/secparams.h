@@ -14,4 +14,8 @@ const double DEF_TRLWE_ALPHA = pow(2.,-25);
 // TGSW sec params
 const int32_t DEF_l = 3;
 const int32_t DEF_BgBit = 6;
-const int32_t DEF_Bg = 1 << DEF_BgBit;  //64 
+const uint32_t DEF_Bg = 1UL << DEF_BgBit;  //64
+
+// KeySwitch sec params
+const int32_t DEF_basebit = 2;
+const int32_t DEF_tt = 8;

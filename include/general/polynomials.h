@@ -7,41 +7,39 @@ class IntPolynomial
 {
 private:
     int32_t N;
-    // int32_t* coefficients;
     std::array<int32_t, DEF_N> coefficients;
+
 public:
     IntPolynomial();
-    IntPolynomial(int32_t N);
+    IntPolynomial(std::array<int32_t, DEF_N> coefficients);
     ~IntPolynomial();
 
     // Setters
-    void setCoefficient(int32_t value, int i);
+    void setCoefficient(int i, int32_t value);
 
     // Getters
-    int32_t* getCoef();
+    int32_t *getCoef();
     int32_t getCoef(int i);
-    std::array<int32_t, DEF_N>* getCoefAsArray();
-    
-    // forbidden
-    IntPolynomial(IntPolynomial&) = delete;
-    IntPolynomial* operator=(IntPolynomial&) = delete;
+    std::array<int32_t, DEF_N> *getCoefAsArray();
+    IntPolynomial &operator=(IntPolynomial &);
 };
-
 
 class TorusPolynomial
 {
 private:
     int32_t N;
     std::array<Torus32, DEF_N> TorusCoefficients;
+
 public:
     TorusPolynomial(int32_t N);
+    TorusPolynomial();
     ~TorusPolynomial();
 
     // Getter
     int32_t getLenght();
-    int32_t* getCoef();
+    int32_t *getCoef();
     int32_t getCoef(int i);
-    std::array<Torus32, DEF_N>* getCoefAsArray();
+    std::array<Torus32, DEF_N> *getCoefAsArray();
 
     // Setters
     void setCoefficient(int i, int32_t value);
@@ -55,6 +53,7 @@ class FftPoly
 {
 private:
     std::array<double, DEF_N> data;
+
 public:
     FftPoly();
     ~FftPoly();
@@ -63,7 +62,7 @@ public:
     void setCoef(int i, double value);
 
     // Getters
-    double* getArray();
+    double *getArray();
     double getCoef(int i);
     int getLength();
 };

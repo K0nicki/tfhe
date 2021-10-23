@@ -1,5 +1,12 @@
 #include "../../include/lwe/LWESample.h"
 
+LWESample::LWESample()
+{
+    this->a = new Torus32[DEF_n];
+    this->b = 0;
+    this->currentNoise = 0.;
+}
+
 LWESample::LWESample(LWEParams *params)
 {
     this->a = new Torus32[params->getLength()];
@@ -9,7 +16,7 @@ LWESample::LWESample(LWEParams *params)
 
 LWESample::~LWESample()
 {
-    delete[] a;
+    // delete[] a;
 }
 
 void LWESample::setB(Torus32 value)
@@ -31,6 +38,11 @@ Torus32 *LWESample::getA()
 {
     return this->a;
 }
+
+Torus32 LWESample::getA(int i) {
+    return *(a+i);
+}
+
 
 Torus32 LWESample::getB()
 {

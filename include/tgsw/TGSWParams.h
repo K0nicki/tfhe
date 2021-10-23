@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../tlwe/TLWEParams.h"
 #include <array>
 
@@ -16,7 +17,7 @@ private:
     int32_t BgBit;
 
     // Decomposition base
-    int32_t Bg;
+    uint32_t Bg;
 
     // Bg-1 
     uint32_t mask;
@@ -28,7 +29,7 @@ private:
     int32_t rows;
 
     // powers of BgBit
-    std::array<int32_t,DEF_l> h;
+    std::array<uint32_t,DEF_l> h;
 
     // offset = Bg/2 *(2^(32-BgBit) + 2^(32-2*BgBit) + ... + 2^(32-l*BgBit))
     uint32_t offset;
@@ -38,10 +39,10 @@ public:
 
     int32_t getDecompositionLength();
     int32_t getBgbit();
-    int32_t getBg();
-    int32_t getMask();
+    uint32_t getBg();
+    uint32_t getMask();
     TLWEParams* getTLWEParams();
     int32_t getNoRows();
-    int32_t* getBgbitPowers();
+    std::array<uint32_t,DEF_l> getBgbitPowers();
     uint32_t getOffset();
 };

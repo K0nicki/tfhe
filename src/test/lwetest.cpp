@@ -1,7 +1,7 @@
-#include "../include/tfhe.h"
+#include "../../include/tfhe.h"
 #include <iostream>
-#include <vector>
 #include <inttypes.h>
+#include <vector>
 
 int main(int argc, char const *argv[])
 {
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
         for (int32_t i = 0; i < 10; i++)
         {
             Torus32 message{switchToTorus32(i, M)};
-            lweEncrypt(&sample, &message, alpha, key);
+            sample = lweEncrypt(&message, alpha, key);
             Torus32 phase{lwePhase(&sample, key)};
             Torus32 decryption = lweDecrypt(&sample, key, M);
             double dmsg = t32tod(message);
@@ -93,8 +93,8 @@ int main(int argc, char const *argv[])
             }
 
             // Addition
-            lweEncrypt(&addSample1, &message, alpha, key);
-            lweEncrypt(&addSample2, &message, alpha, key);
+            addSample1 = lweEncrypt(&message, alpha, key);
+            addSample2 = lweEncrypt(&message, alpha, key);
             lweCopy(&addSampleResult, &addSample1, key->getParams());
             lweAdd(&addSampleResult, &addSample2, key->getParams());
             for (int i = 0; i < key->getParams()->getLength(); i++)
@@ -124,8 +124,8 @@ int main(int argc, char const *argv[])
             }
 
             // Subtraction
-            lweEncrypt(&subSample1, &message, alpha, key);
-            lweEncrypt(&subSample2, &message, alpha, key);
+            subSample1 = lweEncrypt(&message, alpha, key);
+            subSample2 = lweEncrypt(&message, alpha, key);
             lweCopy(&subSampleResult, &subSample1, key->getParams());
             lweSub(&subSampleResult, &subSample2, key->getParams());
             for (int i = 0; i < key->getParams()->getLength(); i++)

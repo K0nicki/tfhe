@@ -7,6 +7,8 @@
  * @copyright Copyright (c) 2021
  * 
  */
+#pragma once
+
 #include <stdint.h>
 #include <random>
 

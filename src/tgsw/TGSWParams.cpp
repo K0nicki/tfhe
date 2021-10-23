@@ -12,16 +12,17 @@ TGSWParams::TGSWParams(TLWEParams *tlweParams)
     for (int i = 0; i < l; i++)
     {
         h[i] = 1U << (32 - (i + 1) * BgBit);
-        offset += Bg / 2 * h[i];
+        offset += (Bg / 2) * h[i];
     }
 }
 
+TGSWParams::~TGSWParams() {}
 int32_t TGSWParams::getDecompositionLength() { return this->l; }
 int32_t TGSWParams::getBgbit() { return this->BgBit; }
-int32_t TGSWParams::getBg() { return this->Bg; }
-int32_t TGSWParams::getMask() { return this->mask; }
+uint32_t TGSWParams::getBg() { return this->Bg; }
+uint32_t TGSWParams::getMask() { return this->mask; }
 int32_t TGSWParams::getNoRows() { return this->rows; }
-int32_t *TGSWParams::getBgbitPowers() { return this->h.data(); }
+std::array<uint32_t,DEF_l> TGSWParams::getBgbitPowers() { return this->h; }
 uint32_t TGSWParams::getOffset() { return this->offset; }
 TLWEParams *TGSWParams::getTLWEParams() { return this->tlweParams; }
 

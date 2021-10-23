@@ -1,24 +1,31 @@
 #include "../../include/tgsw/TGSWKey.h"
 
-TGSWKey::TGSWKey(TGSWParams* params): tgswParams(params), tlweParams(params->getTLWEParams())
+TGSWKey::TGSWKey(TGSWParams *params)
 {
-    tlwekey = &TLWEKey{tlweParams};
-    key = tlwekey->getKey();
+    this->tgswParams = params;
+    this->tlwekey = new TLWEKey{params->getTLWEParams()};
 }
 
 TGSWKey::~TGSWKey()
 {
 }
 
-TLWEKey* TGSWKey::getTLWEKey() {
+TLWEKey *TGSWKey::getTLWEKey()
+{
     return this->tlwekey;
 }
 
-void TGSWKey::setTLWEKey(TLWEKey* key) {
+void TGSWKey::setTLWEKey(TLWEKey *key)
+{
     this->tlwekey = key;
 }
 
+TGSWParams *TGSWKey::getTGSWparams()
+{
+    return tgswParams;
+}
 
-TGSWParams* TGSWKey::getTGSWparams() {
-    return this->tgswParams;
+IntPolynomial *TGSWKey::getKey()
+{
+    return this->tlwekey->getIntKey();
 }
