@@ -51,9 +51,7 @@ TGSWSample *tgswAddMxHInt(TGSWSample *sample, IntPolynomial *msg, TGSWParams *pa
             Torus32 *target = sample->getSampleAt(i)->getA(bloc)->getCoefAsArray()->data();
             Torus32 hi = h[i];
             for (int j = 0; j < N; j++)
-            {
                 target[j] = msg->getCoef(j) * hi;
-            }
         }
 
     return sample;

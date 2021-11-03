@@ -1,7 +1,7 @@
 #include "../../include/general/functions.h"
 
 static const int64_t _b32 = int64_t(1) << 32; // 2^32
-static const double _b32_double = _b32; // 2^32
+static const double _b32_double = _b32;       // 2^32
 
 double absfrac(double d) { return abs(d - rint(d)); }
 
@@ -37,18 +37,21 @@ Torus32 approxPhase(Torus32 phase, int32_t Msize)
 
     // Rescale to 32bits
     return int32_t(phase64 >> 32);
-    /**
- * @Questions
- * Why we need expand phase to 64 bits? Why we can't do it on 32 bits space?
- * Because it was uint.
- */
 }
 
 Torus32 switchToTorus32(int32_t message, int32_t Msize)
 {
-    uint64_t interval{((UINT64_C(1) << 63) / Msize)*2};
+    uint64_t interval{((UINT64_C(1) << 63) / Msize) * 2};
     uint64_t phase64{message * interval};
 
     // floor to the nearest possible multiples of interval
     return phase64 >> 32;
+}
+
+int32_t switchFromTorus32(Torus32 phase, int32_t M)
+{
+    uint64_t interval = ((UINT64_C(1) << 63) / M) * 2;
+    uint64_t phase64 = (uint64_t(phase) << 32) + interval / 2;
+
+    return phase64 / interval;
 }

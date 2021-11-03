@@ -34,3 +34,5 @@ Torus32 approxPhase(Torus32 phase, int32_t Msize);
  * @return Torus32 
  */
 Torus32 switchToTorus32(int32_t message, int32_t Msize);
+
+int32_t switchFromTorus32(Torus32 phase, int32_t M);

@@ -80,7 +80,7 @@ void tlweSubTo(TLWESample *a, TLWESample *b, TLWEParams *params)
     a->setNoise(a->getNoise() + b->getNoise());
 }
 
-void tlweSub(TLWESample* result, TLWESample *a, TLWESample *b, TLWEParams *params)
+void tlweSub(TLWESample *result, TLWESample *a, TLWESample *b, TLWEParams *params)
 {
     int32_t N = params->getDegree();
     int32_t k = params->getPolyAmount();
@@ -103,7 +103,7 @@ void tlweAddTo(TLWESample *a, TLWESample *b, TLWEParams *params)
     a->setNoise(a->getNoise() + b->getNoise());
 }
 
-void tlweAdd(TLWESample* result, TLWESample *a, TLWESample *b, TLWEParams *params)
+void tlweAdd(TLWESample *result, TLWESample *a, TLWESample *b, TLWEParams *params)
 {
     int32_t N = params->getDegree();
     int32_t k = params->getPolyAmount();
@@ -111,8 +111,8 @@ void tlweAdd(TLWESample* result, TLWESample *a, TLWESample *b, TLWEParams *param
     for (int i = 0; i < k; i++)
         torusPolyAdd(result->getA(i), a->getA(i), b->getA(i));
     torusPolyAdd(result->getB(), a->getB(), b->getB());
-    
-    a->setNoise(a->getNoise() + b->getNoise());
+
+    result->setNoise(a->getNoise() + b->getNoise());
 }
 
 TorusPolynomial tlweGetPhase(TLWESample *sample, TLWEKey *key)
@@ -131,6 +131,18 @@ TorusPolynomial tlweGetPhase(TLWESample *sample, TLWEKey *key)
     }
 
     return phase;
+}
+
+void tlweCopy(TLWESample *result, TLWESample *sample, TLWEParams *params)
+{
+    int32_t k = params->getPolyAmount();
+    int32_t N = params->getDegree();
+
+    for (int i = 0; i <= k; i++)
+        for (int j = 0; j < N; j++)
+            result->getA(i)->setCoefficient(j, sample->getA(i)->getCoef(j));
+
+    result->setNoise(sample->getNoise());
 }
 
 TorusPolynomial tlweApproxPhase(TorusPolynomial *phase, int32_t M, int32_t N)
@@ -158,15 +170,18 @@ void tlweSampleIndexExtract(LWESample *result, TLWESample *x, int32_t index, TLW
     int32_t N = params->getDegree();
     int32_t k = params->getPolyAmount();
 
-    // for (int j = 0; j <= index; j++)
-    //     result->setA(x->getA(0)->getCoef(index), i * N + j);
-    // for (int j = index + 1; j < N; j++)
-    //     result->setA(-x->getA(0)->getCoef(N + index - j), i * N + j);
+    // for (int i = 0; i < k; i++)
+    // {
+    //     for (int j = 0; j <= index; j++)
+    //         result->setA(x->getA(i)->getCoef(index), i * N + j);
+    //     for (int j = index + 1; j < N; j++)
+    //         result->setA(-x->getA(i)->getCoef(N + index - j), i * N + j);
+    // }
 
     for (int i = 0; i <= index; i++)
         result->setA(x->getA(0)->getCoef(index - i), i);
-    for (int i = index+1; i < N; i++)
-        result->setA(-x->getA(0)->getCoef(N + index - i), i);
+    // for (int i = (index + 1); i < N; i++)
+    //     result->setA(-x->getA(0)->getCoef(N + index - i), i);
 
     result->setB(x->getB()->getCoef(index));
 }

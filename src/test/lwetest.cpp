@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
 
         for (int32_t i = 0; i < 10; i++)
         {
-            Torus32 message{switchToTorus32(i, M)};
+            Torus32 message{switchToTorus32(i % 2, M)};
             sample = lweEncrypt(&message, alpha, key);
             Torus32 phase{lwePhase(&sample, key)};
             Torus32 decryption = lweDecrypt(&sample, key, M);
@@ -70,7 +70,7 @@ int main(int argc, char const *argv[])
             std::cout << "Original message [Torus]: " << message << "; decrypted message [Torus]: " << decryption << std::endl;
             if (message == decryption)
             {
-                std::cout << "[OK] Correct encryption\n";
+                // std::cout << "[OK] Correct encryption\n";
                 ok++;
             }
             else

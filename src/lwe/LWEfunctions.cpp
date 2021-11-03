@@ -67,7 +67,7 @@ void lweAdd(LWESample *result, LWESample *sample, LWEParams *params){
     const int32_t n = params->getLength();
 
     for (int i = 0; i < n; i++)
-        result->setA((result->getA())[i] + (sample->getA())[i], i);
+        result->setA(result->getA(i) + sample->getA(i), i);
 
     result->setB(result->getB() + sample->getB());
     result->setVariance(result->getCurrentNoise() + sample->getCurrentNoise());
@@ -76,7 +76,7 @@ void lweAdd(LWESample *result, LWESample *sample, LWEParams *params){
 void lweSub(LWESample *result, LWESample *sample, LWEParams *params) {
     const int32_t n = params->getLength();
     for (int i = 0; i < n; i++)
-        result->setA((result->getA())[i] - (sample->getA())[i], i);
+        result->setA(result->getA(i) - sample->getA(i), i);
 
     result->setB(result->getB() - sample->getB());
     result->setVariance(result->getCurrentNoise() - sample->getCurrentNoise());
@@ -85,7 +85,7 @@ void lweSub(LWESample *result, LWESample *sample, LWEParams *params) {
 void lweCopy(LWESample *result, LWESample *sample, LWEParams *params) {
     const int32_t n = params->getLength();
     for (int i = 0; i < n; i++)
-        result->setA((sample->getA())[i], i);
+        result->setA(sample->getA(i), i);
 
     result->setB(sample->getB());
     result->setVariance(sample->getCurrentNoise());

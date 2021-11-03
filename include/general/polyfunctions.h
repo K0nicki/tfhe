@@ -19,7 +19,7 @@ void fmaPolyFD(FftPoly *res, FftPoly *a, FftPoly *b);
 FftPoly mulPolyFD(FftPoly *a, FftPoly *b);
 
 void polyMulByX_i(TorusPolynomial *result, TorusPolynomial *source, uint32_t p);
-void polyMulByX_iMinOne(TorusPolynomial *result, TorusPolynomial *source, uint32_t p);
+void polyMulByX_iMinOne(TorusPolynomial *result, TorusPolynomial *source, int32_t p);
 
 void torusPolyMulFD(TorusPolynomial *result, IntPolynomial *poly1, TorusPolynomial *poly2);
 void torusPolyMulSubFD(TorusPolynomial *result, IntPolynomial *poly1, TorusPolynomial *poly2);

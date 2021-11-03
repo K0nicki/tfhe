@@ -26,7 +26,7 @@ public:
     TGSWSample* getSampleAt(int i);
 
     BootstrappingKey();
-    BootstrappingKey(TGSWKey *key);
+    BootstrappingKey(TGSWKey *tgswKey, LWEKey* lweKey);
     ~BootstrappingKey();
 };
 

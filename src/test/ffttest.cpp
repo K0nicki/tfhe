@@ -79,7 +79,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < N; i++)
         {
             if (message.getCoef(i) != decryptVerif.getCoef(i)) {
-                std::cout << message.getCoef(i) << " vs " << decryptVerif.getCoef(i) << std::endl;
+                // std::cout << message.getCoef(i) << " vs " << decryptVerif.getCoef(i) << std::endl;
                 warning++;
             }
         }

@@ -3,9 +3,9 @@
 #include "../lwe/functions.h"
 
 /**
- * @brief 
- * 
- * @param result 
+ * @brief
+ *
+ * @param result
  */
 void tlweKeyGen(TLWEKey *key, TLWEParams *params);
 
@@ -22,7 +22,8 @@ TorusPolynomial tlweDecrypt(TLWESample *sample, TLWEKey *key, int32_t M);
 void tlweSampleIndexExtract(LWESample *result, TLWESample *x, int32_t index, TLWEParams *rparams);
 
 void tLweAddMulRTo(TLWESample *result, IntPolynomial *p, TLWESample *sample, TLWEParams *params);
-void tlweAddTo(TLWESample* a, TLWESample * b, TLWEParams* params);
-void tlweAdd(TLWESample* result, TLWESample *a, TLWESample *b, TLWEParams *params);
-void tlweSubTo(TLWESample* a, TLWESample * b, TLWEParams* params);
-void tlweSub(TLWESample* result, TLWESample *a, TLWESample *b, TLWEParams *params);
+void tlweAddTo(TLWESample *a, TLWESample *b, TLWEParams *params);
+void tlweAdd(TLWESample *result, TLWESample *a, TLWESample *b, TLWEParams *params);
+void tlweSubTo(TLWESample *a, TLWESample *b, TLWEParams *params);
+void tlweSub(TLWESample *result, TLWESample *a, TLWESample *b, TLWEParams *params);
+void tlweCopy(TLWESample *result, TLWESample *sample, TLWEParams *params);

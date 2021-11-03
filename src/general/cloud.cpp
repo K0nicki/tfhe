@@ -23,14 +23,14 @@ LweKeySwitch::~LweKeySwitch() {}
 
 BootstrappingKey::BootstrappingKey() {}
 
-BootstrappingKey::BootstrappingKey(TGSWKey *key)
+BootstrappingKey::BootstrappingKey(TGSWKey *tgswKey, LWEKey *lweKey)
 {
-    this->tgswParams = key->getTGSWparams();
+    this->tgswParams = tgswKey->getTGSWparams();
 
     for (int i = 0; i < DEF_n; i++)
     {
-        bootstrappingKey[i] = new TGSWSample{key->getTGSWparams()};
-        tgswEncryptInt(bootstrappingKey.at(i), key->getTLWEKey()->getIntKey()->getCoef(i), DEF_TRLWE_ALPHA, key);
+        bootstrappingKey[i] = new TGSWSample{tgswKey->getTGSWparams()};
+        tgswEncryptInt(bootstrappingKey[i], lweKey->getLWEKey()[i], DEF_TRLWE_ALPHA, tgswKey);
     }
 }
 
@@ -41,14 +41,14 @@ TGSWParams *BootstrappingKey::getTGSWParams()
     return this->tgswParams;
 }
 
-TGSWSample* BootstrappingKey::getSampleAt(int i) {
+TGSWSample *BootstrappingKey::getSampleAt(int i)
+{
     return bootstrappingKey.at(i);
 }
 
-
 GateKey::GateKey(TGSWKey *tgswKey, LWEKey *lweKey)
 {
-    this->bootstrappingkey = BootstrappingKey{tgswKey};
+    this->bootstrappingkey = BootstrappingKey{tgswKey, lweKey};
     this->switchKey = LweKeySwitch{lweKey};
 }
 
