@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
         tgswKeyGen(&key);
 
         LweKeySwitch testLWEKS{&key1024};
-        BootstrappingKey testBK{&key};
+        BootstrappingKey testBK{&key, &key1024};
         GateKey testGK{&key, &key1024};
     }
     std::cout << "Test passed!\n";

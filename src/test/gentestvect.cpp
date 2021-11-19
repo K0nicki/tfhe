@@ -7,7 +7,7 @@
 int main(int argc, char const *argv[])
 {
     std::uniform_int_distribution<int32_t> distrib(0, 1);
-    std::random_device rd; 
+    std::random_device rd;
     std::mt19937 gen(rd());
 
     LWEParams params1024(DEF_N, 0., 1.);
@@ -26,6 +26,9 @@ int main(int argc, char const *argv[])
     {
         TLWEParams *tlweParams = params->getTLWEParams();
         LWESample sample(tlweParams->getLWEParams());
+        LWESample resultKeySwitching(tlweParams->getLWEParams());
+        TLWESample testvect{tlweParams};
+        int32_t N = tlweParams->getDegree();
         TGSWKey tgswkey{params};
         tgswKeyGen(&tgswkey);
 
@@ -33,25 +36,25 @@ int main(int argc, char const *argv[])
 
         err = 0;
 
-        for (int j = 0; j < trials; j++)
+        for (int j = 0; j < 1; j++)
         {
-            LWESample result(tlweParams->getLWEParams());
-
-            Torus32 message{switchToTorus32(1, M)};
+            int32_t binMsg = j;
+            // int32_t binMsg = 1;
+            // int32_t binMsg = distrib(gen) ? 1 : -1;
+            // int32_t myMSG = binMsg ? 1 : -1;
+            // int32_t myMSG = binMsg;
+            Torus32 message{switchToTorus32(binMsg, M)};
             sample = lweEncrypt(&message, DEF_TLWE_ALPHA, &lwekey);
 
-            bootstrapinglwe2lwe(&result, &sample, &gk);
-
-            Torus32 decrypt = lweDecrypt(&result, &lwekey, M);
-
-            if (message != decrypt)
+            // testvect[0][*] = 0, testvect[1][*] = 0, testvect[2][*] = 1
+            for (int i = 0; i < N; i++)
             {
-                // std::cout << binMsg << " v " << decrypt << std::endl;
-                err++;
-            }
-            std::cout << message << " v " << decrypt << std::endl;
+                testvect.getB()->setCoefficient(i, approxPhase(switchToTorus32(i, N),M));
+                // testvect.getB()->setCoefficient(i, switchFromTorus32(switchToTorus32(i, N), M));
+                std::cout << "|" << testvect.getB()->getCoef(i);
+            }    
+            std::cout << std::endl;
 
-            // assert(message == decrypt);
         }
     }
     std::cout << "Total errors: " << err << std::endl;

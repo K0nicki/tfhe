@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
             Torus32 decryption = lweDecrypt(&sample, key, M);
             double dmsg = t32tod(message);
             double dphase = t32tod(phase);
-            std::cout << "Original message [Torus]: " << message << "; decrypted message [Torus]: " << decryption << std::endl;
+            // std::cout << "Original message [Torus]: " << message << "; decrypted message [Torus]: " << decryption << std::endl;
             if (message == decryption)
             {
                 // std::cout << "[OK] Correct encryption\n";
@@ -75,15 +75,15 @@ int main(int argc, char const *argv[])
             }
             else
             {
-                std::cout << "[WARNING] Decryption is not correct\n";
+                std::cout << "[WARNING] Decryption is not correct:\t" << switchFromTorus32(message, M) << " v " << switchFromTorus32(decryption, M) << std::endl;
                 warning++;
             }
 
             double result = absfrac(dmsg - dphase);
-            std::cout << "Checking error lvl..." << std::endl;
+            // std::cout << "Checking error lvl..." << std::endl;
             if (result < 10 * alpha)
             {
-                std::cout << "[OK]\n";
+                // std::cout << "[OK]\n";
                 ok++;
             }
             else
@@ -97,62 +97,62 @@ int main(int argc, char const *argv[])
             addSample2 = lweEncrypt(&message, alpha, key);
             lweCopy(&addSampleResult, &addSample1, key->getParams());
             lweAdd(&addSampleResult, &addSample2, key->getParams());
-            for (int i = 0; i < key->getParams()->getLength(); i++)
-            {
+            // for (int i = 0; i < key->getParams()->getLength(); i++)
+            // {
 
-                if ((&addSampleResult)->getA()[i] == ((&addSample1)->getA()[i] + (&addSample2)->getA()[i]))
-                    ok++;
-                else
-                {
-                    std::cout << "[WARNING] Addition incorrect at " << i << " index!\n";
-                    warning++;
-                }
-            }
-            if ((&addSampleResult)->getB() == ((&addSample1)->getB() + (&addSample2)->getB()))
-                ok++;
-            else
-            {
-                std::cout << "[WARNING] Addition incorrect for B parameter!!\nExpected " << (&addSampleResult)->getB() << " but got " << (&addSample1)->getB() + (&addSample2)->getB() << std::endl;
-                warning++;
-            }
-            if ((&addSampleResult)->getCurrentNoise() == ((&addSample1)->getCurrentNoise() + (&addSample2)->getCurrentNoise()))
-                ok++;
-            else
-            {
-                std::cout << "[WARNING] Addition incorrect for noise value parameter!!\nExpected " << (&addSampleResult)->getCurrentNoise() << " but got " << (&addSample1)->getCurrentNoise() + (&addSample2)->getCurrentNoise() << std::endl;
-                warning++;
-            }
+            //     if ((&addSampleResult)->getA()[i] == ((&addSample1)->getA()[i] + (&addSample2)->getA()[i]))
+            //         ok++;
+            //     else
+            //     {
+            //         std::cout << "[WARNING] Addition incorrect at " << i << " index!\n";
+            //         warning++;
+            //     }
+            // }
+            // if ((&addSampleResult)->getB() == ((&addSample1)->getB() + (&addSample2)->getB()))
+            //     ok++;
+            // else
+            // {
+            //     std::cout << "[WARNING] Addition incorrect for B parameter!!\nExpected " << (&addSampleResult)->getB() << " but got " << (&addSample1)->getB() + (&addSample2)->getB() << std::endl;
+            //     warning++;
+            // }
+            // if ((&addSampleResult)->getCurrentNoise() == ((&addSample1)->getCurrentNoise() + (&addSample2)->getCurrentNoise()))
+            //     ok++;
+            // else
+            // {
+            //     std::cout << "[WARNING] Addition incorrect for noise value parameter!!\nExpected " << (&addSampleResult)->getCurrentNoise() << " but got " << (&addSample1)->getCurrentNoise() + (&addSample2)->getCurrentNoise() << std::endl;
+            //     warning++;
+            // }
 
             // Subtraction
             subSample1 = lweEncrypt(&message, alpha, key);
             subSample2 = lweEncrypt(&message, alpha, key);
             lweCopy(&subSampleResult, &subSample1, key->getParams());
             lweSub(&subSampleResult, &subSample2, key->getParams());
-            for (int i = 0; i < key->getParams()->getLength(); i++)
-            {
+            // for (int i = 0; i < key->getParams()->getLength(); i++)
+            // {
 
-                if ((&subSampleResult)->getA()[i] == ((&subSample1)->getA()[i] - (&subSample2)->getA()[i]))
-                    ok++;
-                else
-                {
-                    std::cout << "[WARNING] Subtraction incorrect at " << i << " index!\n";
-                    warning++;
-                }
-            }
-            if ((&subSampleResult)->getB() == ((&subSample1)->getB() - (&subSample2)->getB()))
-                ok++;
-            else
-            {
-                std::cout << "[WARNING] Subtraction incorrect for B parameter!!\nExpected " << (&subSampleResult)->getB() << " but got " << (&subSample1)->getB() - (&subSample2)->getB() << std::endl;
-                warning++;
-            }
-            if ((&subSampleResult)->getCurrentNoise() == ((&subSample1)->getCurrentNoise() - (&subSample2)->getCurrentNoise()))
-                ok++;
-            else
-            {
-                std::cout << "[WARNING] Subtraction incorrect for noise value parameter!!\nExpected " << (&subSampleResult)->getCurrentNoise() << " but got " << (&subSample1)->getCurrentNoise() - (&subSample2)->getCurrentNoise() << std::endl;
-                warning++;
-            }
+            //     if ((&subSampleResult)->getA()[i] == ((&subSample1)->getA()[i] - (&subSample2)->getA()[i]))
+            //         ok++;
+            //     else
+            //     {
+            //         std::cout << "[WARNING] Subtraction incorrect at " << i << " index!\n";
+            //         warning++;
+            //     }
+            // }
+            // if ((&subSampleResult)->getB() == ((&subSample1)->getB() - (&subSample2)->getB()))
+            //     ok++;
+            // else
+            // {
+            //     std::cout << "[WARNING] Subtraction incorrect for B parameter!!\nExpected " << (&subSampleResult)->getB() << " but got " << (&subSample1)->getB() - (&subSample2)->getB() << std::endl;
+            //     warning++;
+            // }
+            // if ((&subSampleResult)->getCurrentNoise() == ((&subSample1)->getCurrentNoise() - (&subSample2)->getCurrentNoise()))
+            //     ok++;
+            // else
+            // {
+            //     std::cout << "[WARNING] Subtraction incorrect for noise value parameter!!\nExpected " << (&subSampleResult)->getCurrentNoise() << " but got " << (&subSample1)->getCurrentNoise() - (&subSample2)->getCurrentNoise() << std::endl;
+            //     warning++;
+            // }
 
             // Prepare for the next round
             lweClear(&sample, key->getParams());

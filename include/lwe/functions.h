@@ -1,6 +1,7 @@
 #pragma once
 #include "LWEKey.h"
 #include "../general/functions.h"
+#include "../tlwe/TLWEKey.h"
 
 /**
  * @brief           Generate random LWE key for the given parameters 
@@ -37,6 +38,8 @@ LWESample lweEncrypt(Torus32 *message, double noise, LWEKey *key);
  */
 Torus32 lwePhase(LWESample *sample, LWEKey *key);
 
+template <int32_t n=DEF_N>
+Torus32 lwePhaseN(LWESample *sample, TLWEKey *key);
 /**
  * @brief           Decryption function. It returns a Torus32 value which is expected result
  * 
@@ -46,6 +49,7 @@ Torus32 lwePhase(LWESample *sample, LWEKey *key);
  * @return          Torus32 encrypted message
  */
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize);
+Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize);
 
 /**
  * @brief   Function clear LWE Sample object

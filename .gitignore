@@ -1,7 +1,7 @@
-.vscode
 run.sh
 
 build/
+tests/
 
 *.o
 *.txt

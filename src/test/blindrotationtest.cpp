@@ -6,7 +6,11 @@
 
 int main(int argc, char const *argv[])
 {
-    LWEParams params1024(DEF_n, 0., 1.);
+    std::uniform_int_distribution<int32_t> distrib(0, 1);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    LWEParams params1024(DEF_N, 0., 1.);
     LWEKey lwekey(&params1024);
     lweKeyGen(&lwekey);
 
@@ -22,6 +26,7 @@ int main(int argc, char const *argv[])
     {
         TLWEParams *tlweParams = params->getTLWEParams();
         LWESample sample(tlweParams->getLWEParams());
+        LWESample resultKeySwitching(tlweParams->getLWEParams());
         TLWESample testvect{tlweParams};
         int32_t N = tlweParams->getDegree();
         TGSWKey tgswkey{params};
@@ -33,118 +38,168 @@ int main(int argc, char const *argv[])
 
         for (int j = 0; j < trials; j++)
         {
-            int32_t binMsg = switchToTorus32(rand() % 8, M);
+            int32_t binMsg = j;
+            // int32_t binMsg = 1;
+            // int32_t binMsg = distrib(gen) ? 1 : -1;
             // int32_t myMSG = binMsg ? 1 : -1;
-            int32_t myMSG = binMsg;
-            Torus32 message{switchToTorus32(myMSG, M)};
-            sample = lweEncrypt(&message, DEF_TLWE_ALPHA, &lwekey);
+            // int32_t myMSG = binMsg;
+            Torus32 message{switchToTorus32(binMsg, M)};
+            sample = lweEncrypt(&message, DEF_TRLWE_ALPHA, &lwekey);
 
             // testvect[0][*] = 0, testvect[1][*] = 0, testvect[2][*] = 1
             for (int i = 0; i < N; i++)
-                testvect.getB()->setCoefficient(i, switchToTorus32(1, M));
-
-            // int32_t phase = switchFromTorus32(sample.getB(), N * 2);
-            // for (int i = 0; i < params1024.getLength(); i++)
-            // {
-            //     int32_t barai = switchFromTorus32(sample.getA(i), N * 2);
-            //     phase -= lwekey.getLWEKey()[i] * barai;
-            // }
-            // phase = (N * 2 + (phase % (N * 2))) % (N * 2);
+                // testvect.getB()->setCoefficient(i, i);
+                testvect.getB()->setCoefficient(i, approxPhase(switchToTorus32(i, N),M));
+            // testvect.getB()->setCoefficient(i, switchToTorus32(1, M));
 
             TLWESample resultRotation(tlweParams);
-            blindRotate(&resultRotation, &testvect, &sample, &gk);
-            
+            // blindRotate(&resultRotation, &testvect, &sample, &gk);
+
+            TGSWParams *tgswparams = gk.getTGSWParams();
+            TLWEParams *tlweParams = tgswparams->getTLWEParams();
+            int32_t N2 = 2 * gk.getTGSWParams()->getTLWEParams()->getDegree();
+            int32_t k = gk.getTGSWParams()->getTLWEParams()->getPolyAmount();
+
+            // To perform rotation correctly we need to rotate tlwesample by -b + sum(ai * bk(si))
+            int32_t barab = switchFromTorus32(sample.getB(), N2);
+            int32_t b_til = N2 - barab; // compute -b
+
+            TLWESample d0{tlweParams};
+            TLWESample d0_ncmux{tlweParams};
+            // TLWESample d1{tlweParams};
+            // TLWESample cMuxResult{tlweParams};
+
+            // Rotate testvect by well known -b parameter
+            if (barab != 0)
+                for (int i = 0; i <= k; i++)
+                    polyMulByX_i(d0.getA(i), testvect.getA(i), b_til);
+            else
+                tlweCopy(&d0, &testvect, tlweParams);
+
+
+            if (barab != 0)
+                for (int i = 0; i <= k; i++)
+                    polyMulByX_i(d0_ncmux.getA(i), testvect.getA(i), b_til);
+            else
+                tlweCopy(&d0_ncmux, &testvect, tlweParams);
+
+            // perform a real bind rotation
+            for (int i = 0; i < DEF_n; i++)
+            {
+                // tlweClear(&d1, params->getTLWEParams());
+                // tlweClear(&cMuxResult, params->getTLWEParams());
+                TLWESample d1{tlweParams};
+                TLWESample cMuxResult{tlweParams};
+                TLWESample d1_ncmux{tlweParams};
+                TLWESample ncmuxResult{tlweParams};
+
+                // compute ai
+                int32_t a_til = switchFromTorus32(sample.getA(i), N2);
+
+                if (a_til == 0)
+                    continue; // Don't even try to rotate by 0 positions!
+
+                // prepare rotated testvect by ai position in case of bk(si) is 1
+                for (int j = 0; j <= k; j++)
+                    polyMulByX_i(d1.getA(j), d0.getA(j), a_til);
+                // Sth is wrong with a_til rotation - it rotates poly by strange positions - reason?
+
+                // Blind Rotation - keep secret key encrypted in tgsw format but nevertheless perform rotation using CMUX gate
+                // bk(si) ? d1 : d0
+                cMux(&cMuxResult, gk.getBootstrappingKey()->getSampleAt(i), &d1, &d0, params);
+
+
+                // externalTgswProduct(&cMuxResult, &d1, gk.getBootstrappingKey()->getSampleAt(i), tgswparams);
+                // tlweAddTo(&d1, &d0, tlweParams);
+
+                // -----------------------------------------------------------------------------
+                //                          CMUX is not working correctly
+                // -----------------------------------------------------------------------------
+                // Torus32 cMuxRes = tlweDecryptT(&cMuxResult, tgswkey.getTLWEKey(), M);
+                // Torus32 d0Res = tlweDecryptT(&d0, tgswkey.getTLWEKey(), M);
+                // Torus32 d1Res = tlweDecryptT(&d1, tgswkey.getTLWEKey(), M);
+
+                
+                for (int j = 0; j <= k; j++)
+                    polyMulByX_i(d1_ncmux.getA(j), d0_ncmux.getA(j), a_til);
+                ncmuxResult = lwekey.getLWEKey()[i] ? d1_ncmux : d0_ncmux;
+
+                TorusPolynomial cMuxRes = tlweDecrypt(&ncmuxResult, tgswkey.getTLWEKey(), M);
+                TorusPolynomial d0Res = tlweDecrypt(&d0_ncmux, tgswkey.getTLWEKey(), M);
+                TorusPolynomial d1Res = tlweDecrypt(&d1_ncmux, tgswkey.getTLWEKey(), M);
+
+                if (!torusPolyEQ(&cMuxRes, lwekey.getLWEKey()[i] ? &d1Res : &d0Res))
+                // if (cMuxRes != (lwekey.getLWEKey()[i] ? d1Res : d0Res))
+                {
+                    //  if (cMuxRes != (lwekey.getLWEKey()[i] ? d1Res : d0Res))
+                    //     {
+                    //         std::cout << "|" << j << "," << i << "| " << cMuxRes << " v "
+                    //                   << lwekey.getLWEKey()[i] << " ? " << d1Res
+                    //                   << " : " << d0Res << std::endl;
+                    //     }
+                    for (int l = 0; l < N; l++)
+                    {
+                        if (cMuxRes.getCoef(l) != (lwekey.getLWEKey()[i] ? d1Res.getCoef(l) : d0Res.getCoef(l)))
+                        {
+                            std::cout << "|" << j << "," << i << "," << l << "| " << cMuxRes.getCoef(l) << " v "
+                                      << lwekey.getLWEKey()[i] << " ? " << d1Res.getCoef(l)
+                                      << " : " << d0Res.getCoef(l) << std::endl;
+                        }
+                    }
+                    err++;
+                }
+
+                // Override testvect with rotated (or not) testvect
+                tlweCopy(&d0, &cMuxResult, tlweParams);
+                tlweCopy(&d0_ncmux, &ncmuxResult, tlweParams);
+                // TLWESample *tmp = new TLWESample(tlweParams);
+                // tlweCopy(tmp, &d1, tlweParams);
+                // tlweCopy(&d1, &d0, tlweParams);
+                // tlweCopy(&d0, tmp, tlweParams);
+                // delete tmp;
+            }
+
+            tlweCopy(&resultRotation, &d0_ncmux, tlweParams);
+
+            // TorusPolynomial torusMsg = tlweDecrypt(&resultRotation, tgswkey.getTLWEKey(), M);
+
+            // for (int i = 0; i < N; i++)
+            //     if (torusMsg.getCoef(i) != message)
+            //         std::cout << torusMsg.getCoef(i) << " v " << message << std::endl;
+
             LWESample resultExtraction(tlweParams->getLWEParams());
             tlweSampleIndexExtract(&resultExtraction, &resultRotation, 0, tlweParams);
 
-            Torus32 decrypt = lweDecrypt(&resultExtraction, &lwekey, M);
+            // -----------------------------------------------------------------------------
+            //                          LWESample extraction test - PASSED
+            // -----------------------------------------------------------------------------
+            // LWESample *lweSampleTest = new LWESample(&params1024);
+            // TLWESample tlweSampleTest = tlweEncryptT(switchToTorus32(1,4), DEF_TRLWE_ALPHA, tgswkey.getTLWEKey());
+            // tlweSampleIndexExtract(lweSampleTest, &tlweSampleTest, 0, tgswkey.getTGSWparams()->getTLWEParams());
 
-            // if (binMsg != (phase < N ? decrypt : -decrypt) )
-            // {
-            //     // std::cout << binMsg << " v " << decrypt << std::endl;
-            //     err++;
-            // }
-            // std::cout << binMsg << " v " << decrypt << " v " << (phase < N ? switchToTorus32(1, M) : -switchToTorus32(1, M)) << std::endl;
+            // if (lweDecryptN(lweSampleTest, tgswkey.getTLWEKey(), 4) != switchToTorus32(1,4))
+            //     std::cout << "Extraction error!\n";
 
-            if (binMsg != decrypt)
+            // Torus32 phase = lwePhase(&sample, &lwekey);
+            // Torus32 phase = lwePhaseN(&resultExtraction, tgswkey.getTLWEKey());
+            // std::cout << "phase " << j << " = " << t32tod(phase)  << " v " << t32tod(lwePhase(&sample, &lwekey)) << std::endl;
+
+            Torus32 decrypt = lweDecryptN(&resultExtraction, tgswkey.getTLWEKey(), M);
+            // Torus32 decrypt = lweDecrypt(&resultExtraction, &lwekey, M);
+
+            if (message != decrypt)
+            // if (decrypt != (message >= 0 ? switchToTorus32(1, M) : -switchToTorus32(1, M)))
             {
-                // std::cout << binMsg << " v " << decrypt << std::endl;
-                err++;
+                // std::cout << message << " v " << decrypt << std::endl;
+                // err++;
             }
-            std::cout << binMsg << " v " << decrypt << std::endl;
+            // std::cout << (message >= 0 ? switchToTorus32(1, M) : -switchToTorus32(1, M)) << " v " << decrypt << std::endl;
+            std::cout << message << " v " << decrypt << std::endl;
 
             // assert(message == decrypt);
         }
     }
     std::cout << "Total errors: " << err << std::endl;
 
-    // std::cout << "\nSecond test" << std::endl;
-    // for (TGSWParams *params : tgswparams1024)
-    // {
-    //     int32_t n = lwekey.getParams()->getLength();
-    //     int32_t k = params->getTLWEParams()->getPolyAmount();
-    //     TLWEParams *tlweParams = params->getTLWEParams();
-    //     LWESample sample(lwekey.getParams());
-    //     TLWESample testvect{tlweParams};
-    //     int32_t N = params->getTLWEParams()->getDegree();
-    //     TorusPolynomial testPoly{N};
-    //     TGSWKey tgswkey{params};
-    //     tgswKeyGen(&tgswkey);
-
-    //     GateKey gk{&tgswkey, &lwekey};
-
-    //     err = 0;
-
-    //     for (int j = 0; j < trials; j++)
-    //     {
-    //         int32_t expectedOffset = 0;
-
-    //         TLWESample resultRotation(tlweParams);
-    //         TLWESample verifyRotation(tlweParams);
-    //         LWESample resultExtraction(tlweParams->getLWEParams());
-
-    //         int32_t binMsg = switchToTorus32(rand() % 8, M);
-    //         // int32_t myMSG = binMsg ? 1 : -1;
-    //         int32_t myMSG = binMsg;
-    //         Torus32 message{switchToTorus32(myMSG, M)};
-    //         sample = lweEncrypt(&message, DEF_TLWE_ALPHA, &lwekey);
-
-    //         TorusPolynomial initMsg = sample.getB();
-    //         TorusPolynomial expectedResult = sample.getB();
-
-    //         // create bara
-    //         int32_t *bara = new int32_t[n];
-    //         for (int32_t i = 0; i < n; i++)
-    //             bara[i] = switchFromTorus32(sample.getA(i), (2 * N));
-
-    //         // sample.setB(*bara);
-    //         // for (int i = 0; i <= tlweParams->getPolyAmount(); i++)
-    //         //     torusPolyMakeRandom(&testPoly);
-
-    //         // testvect[0][*] = 0, testvect[1][*] = 0, testvect[2][*] = 1
-    //         for (int i = 0; i < N; i++)
-    //             testvect.getB()->setCoefficient(i, switchToTorus32(1, M));
-
-    //         blindRotate(&resultRotation, &testvect, &sample, &gk);
-
-    //         for (int i = 0; i < n; i++)
-    //         {
-    //             expectedOffset = (expectedOffset + bara[i]) % (2 * N);
-    //             for (int l = 0; l < k; l++)
-    //                 polyMulByX_i(&expectedResult, &initMsg, expectedOffset);
-    //         }
-    //         for (int i = 0; i < N; i++)
-    //             if (expectedResult.getCoef(i) != resultRotation.getB()->getCoef(i))
-    //             {
-    //                 std::cout << expectedResult.getCoef(i) << " v " << resultRotation.getB()->getCoef(i) << std::endl;
-    //                 err++;
-    //             }
-
-    //         // tlweSampleIndexExtract(&resultExtraction, &resultRotation, 0, tlweParams);
-    //     }
-
-    //     std::cout << "Total errors: " << err << std::endl;
-    //     std::cout << "Blind Rotation test passed!" << std::endl;
-    // }
     return 0;
 }

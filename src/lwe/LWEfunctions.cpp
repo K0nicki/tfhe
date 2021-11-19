@@ -23,14 +23,14 @@ LWESample lweEncrypt(Torus32 *message, double alpha, LWEKey *key)
     std::random_device rd; 
     std::mt19937 gen(rd());
 
-    (&result)->setB(addGaussianNoise(message, alpha));
+    result.setB(addGaussianNoise(message, alpha));
     for (int i = 0; i < n; i++)
     {
-        (&result)->setA(distrib(gen), i);
-        (&result)->setB((&result)->getB() + (((&result)->getA())[i] * (key->getLWEKey())[i]));
+        result.setA(distrib(gen), i);
+        result.setB(result.getB() + (result.getA(i) * (key->getLWEKey())[i]));
     }
 
-    (&result)->setVariance(alpha * alpha);
+    result.setVariance(alpha * alpha);
     return result;
 }
 
@@ -43,13 +43,46 @@ Torus32 lwePhase(LWESample *sample, LWEKey *key)
     int32_t *k{key->getLWEKey()};
 
     for (int32_t i = 0; i < n; i++)
-        axs += sample->getA()[i] * key->getLWEKey()[i];
+        axs += a[i] * k[i];
+    return sample->getB() - axs;
+}
+
+template <int32_t n=DEF_n>
+Torus32 lwePhase(LWESample *sample, LWEKey *key)
+{
+    // int32_t n{key->getParams()->getLength()};
+    Torus32 axs{0};
+
+    Torus32 *a{sample->getA()};
+    int32_t *k{key->getLWEKey()};
+
+    for (int32_t i = 0; i < n; i++)
+        axs += a[i] * k[i];
+    return sample->getB() - axs;
+}
+
+template <int32_t n=DEF_N>
+Torus32 lwePhaseN(LWESample *sample, TLWEKey *key)
+{
+    Torus32 axs{0};
+
+    Torus32 *a{sample->getA()};
+    int32_t *k{key->getIntKey(0)->getCoefAsArray()->data()};
+
+    for (int32_t i = 0; i < n; i++)
+        axs += a[i] * k[i];
     return sample->getB() - axs;
 }
 
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize)
 {
     Torus32 phi{lwePhase(sample, key)};
+    return approxPhase(phi, Msize);
+}
+
+Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize)
+{
+    Torus32 phi{lwePhaseN(sample, key)};
     return approxPhase(phi, Msize);
 }
 

@@ -9,3 +9,5 @@ void cMux(TLWESample *result, TGSWSample *cs, TLWESample *d1, TLWESample *d0, TG
 void blindRotate(TLWESample *result, TLWESample *source, LWESample *lweSample, GateKey *gateKey);
 
 void bootstrapinglwe2lwe(LWESample *result, LWESample *testvect, GateKey *gateKey);
+
+void keySwitch(LWESample* result, LWESample* source, GateKey* gk);

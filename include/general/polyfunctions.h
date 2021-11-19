@@ -3,11 +3,11 @@
 #include "polynomials.h"
 
 /**
- * @brief 
- * 
- * @param result 
- * @param poly1 
- * @param poly2 
+ * @brief
+ *
+ * @param result
+ * @param poly1
+ * @param poly2
  */
 template <int32_t N = DEF_N>
 void torusPolyfft(FftPoly *result, std::array<int32_t, N> *poly);
@@ -26,9 +26,11 @@ void torusPolyMulSubFD(TorusPolynomial *result, IntPolynomial *poly1, TorusPolyn
 
 void torusPolyMakeRandom(TorusPolynomial *result);
 
+void torusPolyClear(TorusPolynomial *result);
+bool torusPolyEQ(TorusPolynomial *a, TorusPolynomial *b);
 void torusPolyAddTo(TorusPolynomial *result, TorusPolynomial *a);
 void torusPolyAdd(TorusPolynomial *result, TorusPolynomial *a, TorusPolynomial *b);
 void torusPolySubTo(TorusPolynomial *result, TorusPolynomial *a);
 void torusPolySub(TorusPolynomial *result, TorusPolynomial *a, TorusPolynomial *b);
 void torusPolyCopy(TorusPolynomial *result, TorusPolynomial *a);
-double intPolySq2(IntPolynomial* poly);
+double intPolySq2(IntPolynomial *poly);

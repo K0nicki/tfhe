@@ -1,5 +1,6 @@
 #include "../fft/SPQLIOS/spqlios-fft.h"
 #include "../../include/general/polyfunctions.h"
+#include <cassert>
 
 template <int32_t N>
 void torusPolyfft(FftPoly *result, std::array<int32_t, N> *poly)
@@ -55,6 +56,7 @@ void fmaPolyFD(FftPoly *res, FftPoly *a, FftPoly *b)
 // Result = Source * (X^p - 1)
 void polyMulByX_iMinOne(TorusPolynomial *result, TorusPolynomial *source, int32_t p)
 {
+    assert(result->getLenght() == source->getLenght());
     int32_t N = source->getLenght();
 
     if (p < N)
@@ -77,39 +79,51 @@ void polyMulByX_iMinOne(TorusPolynomial *result, TorusPolynomial *source, int32_
 // Result = Source * X^p
 void polyMulByX_i(TorusPolynomial *result, TorusPolynomial *source, uint32_t p)
 {
+    assert(result->getLenght() == source->getLenght());
     int32_t N = source->getLenght();
-
-    // if (p < N)
-    // {
-    //     for (int i = 0; i < p; i++)
-    //         result->setCoefficient(i, -source->getCoef(N - p + i));
-    //     for (int i = p; i < N; i++)
-    //         result->setCoefficient(i, source->getCoef(i - p));
-    // }
-    // else
-    // {
-    //     p = p - N; // Because of modulo operation
-    //     for (int i = 0; i < p; i++)
-    //         result->setCoefficient(i, source->getCoef(N - p + i));
-    //     for (int i = p; i < N; i++)
-    //         result->setCoefficient(i, -source->getCoef(i - p));
-    // }
 
     if (p < N)
     {
-        for (int i = 0; i < N - p; i++)
-            result->setCoefficient(i + p, source->getCoef(i));
-        for (int i = N - p; i < N; i++)
-            result->setCoefficient(i + p - N, -source->getCoef(i));
+        for (int i = 0; i < p; i++)
+            result->setCoefficient(i, -source->getCoef(N - p + i));
+        for (int i = p; i < N; i++)
+            result->setCoefficient(i, source->getCoef(i - p));
     }
     else
     {
         uint32_t pp = p - N; // Because of modulo operation
-        for (int i = 0; i < N - pp; i++)
-            result->setCoefficient(i + pp, -source->getCoef(i));
-        for (int i = N - pp; i < N; i++)
-            result->setCoefficient(i + pp - N, source->getCoef(i));
+        for (int i = 0; i < pp; i++)
+            result->setCoefficient(i, source->getCoef(N - pp + i));
+        for (int i = pp; i < N; i++)
+            result->setCoefficient(i, -source->getCoef(i - pp));
     }
+
+    // if (p < N)
+    // {
+    //     // for (int i = 0; i < (N - p); i++)
+    //     //     result->setCoefficient(i + p, -source->getCoef(i));
+    //     // for (int i = (N - p); i < N; i++)
+    //     //     result->setCoefficient(i + p - N, source->getCoef(i));
+
+    //     for (int i = 0; i < p; i++)
+    //         result->setCoefficient(N - p + i, -source->getCoef(i));
+    //     for (int i = 1; i <= N - p; i++)
+    //         result->setCoefficient(N - p - i, source->getCoef(N - i));
+    // }
+    // else
+    // {
+    //     uint32_t pp = p - N; // Because of modulo operation
+    //     // Do exactly the same as above but change the sign
+    //     // for (int i = 0; i < (N - pp); i++)
+    //     //     result->setCoefficient(i + pp, -source->getCoef(i));
+    //     // for (int i = (N - pp); i < N; i++)
+    //     //     result->setCoefficient(i + pp - N, source->getCoef(i));
+
+    //     for (int i = 0; i < pp; i++)
+    //         result->setCoefficient(N - pp + i, source->getCoef(i));
+    //     for (int i = 1; i <= N - pp; i++)
+    //         result->setCoefficient(N - pp - i, -source->getCoef(N - i));
+    // }
 }
 
 void torusPolyAddTo(TorusPolynomial *result, TorusPolynomial *a)
@@ -154,6 +168,29 @@ void torusPolySubTo(TorusPolynomial *result, TorusPolynomial *a)
     }
 }
 
+bool torusPolyEQ(TorusPolynomial *a, TorusPolynomial *b)
+{
+    int32_t N = a->getLenght();
+    bool result = true;
+
+    if (a->getLenght() != b->getLenght())
+        result = !result;
+
+    for (int j = 0; j < N && result; j++)
+        if (a->getCoef(j) != b->getCoef(j))
+            result = !result;
+
+    return result;
+}
+
+void torusPolyClear(TorusPolynomial *result)
+{
+    int32_t N = result->getLenght();
+
+    for (int j = 0; j < N; j++)
+        result->setCoefficient(j, 0);
+}
+
 void torusPolySub(TorusPolynomial *result, TorusPolynomial *a, TorusPolynomial *b)
 {
     int32_t N = a->getLenght();
@@ -193,7 +230,7 @@ void torusPolyMulFD(TorusPolynomial *result, IntPolynomial *poly1, TorusPolynomi
     fft1 = mulPolyFD(&fft1, &fft2);
 
     // Do inverse fft
-    torusPolyifft<DEF_N>((&tmp)->getCoefAsArray(), &fft1);
+    torusPolyifft<DEF_N>(tmp.getCoefAsArray(), &fft1);
 
     torusPolyAddTo(result, &tmp);
 }

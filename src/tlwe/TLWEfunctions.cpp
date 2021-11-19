@@ -58,6 +58,20 @@ TLWESample tlweEncrypt(TorusPolynomial *message, double alpha, TLWEKey *key)
     return result;
 }
 
+TLWESample tlweEncryptT(Torus32 message, double alpha, TLWEKey *key) {
+    int32_t N = key->getTLWEParams()->getDegree();
+    int32_t rCoef;
+    int32_t mCoef;
+    TLWESample result{key->getTLWEParams()};
+
+    // prepare tlwe Sample object (add random noise)
+    // a*s + err
+    tlweBaseEncryption(&result, alpha, key);
+    result.getB()->setCoefficient(0, result.getB()->getCoef(0) + message);
+
+    return result;
+}
+
 // result = result + p*sample;
 void tLweAddMulRTo(TLWESample *result, IntPolynomial *p, TLWESample *sample, TLWEParams *params)
 {
@@ -122,12 +136,12 @@ TorusPolynomial tlweGetPhase(TLWESample *sample, TLWEKey *key)
     TorusPolynomial phase{key->getTLWEParams()->getDegree()};
 
     // phi = b
-    torusPolyCopy((&phase), sample->getB());
+    torusPolyCopy(&phase, sample->getB());
 
     for (int i = 0; i < k; i++)
     {
         // phi = b - a*s
-        torusPolyMulSubFD((&phase), key->getIntKey(i), sample->getA(i));
+        torusPolyMulSubFD(&phase, key->getIntKey(i), sample->getA(i));
     }
 
     return phase;
@@ -139,17 +153,40 @@ void tlweCopy(TLWESample *result, TLWESample *sample, TLWEParams *params)
     int32_t N = params->getDegree();
 
     for (int i = 0; i <= k; i++)
-        for (int j = 0; j < N; j++)
-            result->getA(i)->setCoefficient(j, sample->getA(i)->getCoef(j));
+        torusPolyCopy(result->getA(i), sample->getA(i));
 
     result->setNoise(sample->getNoise());
+}
+
+bool tlweEQ(TLWESample *a, TLWESample *b, TLWEParams *params)
+{
+    int32_t N = params->getDegree();
+    int32_t k = params->getPolyAmount();
+    bool result = true;
+
+    for (int i = 0; i < k && result; i++)
+        if (!torusPolyEQ(a->getA(i), b->getA(i)))
+            result = !result;
+
+    return result;
+}
+
+void tlweClear(TLWESample *result, TLWEParams *params)
+{
+    int32_t k = params->getPolyAmount();
+    int32_t N = params->getDegree();
+
+    for (int i = 0; i <= k; i++)
+        torusPolyClear(result->getA(i));
+
+    result->setNoise(0);
 }
 
 TorusPolynomial tlweApproxPhase(TorusPolynomial *phase, int32_t M, int32_t N)
 {
     TorusPolynomial message{N};
     for (int i = 0; i < N; i++)
-        (&message)->setCoefficient(i, approxPhase(phase->getCoef(i), M));
+        message.setCoefficient(i, approxPhase(phase->getCoef(i), M));
 
     return message;
 }
@@ -163,25 +200,28 @@ TorusPolynomial tlweDecrypt(TLWESample *sample, TLWEKey *key, int32_t M)
     return result;
 }
 
+Torus32 tlweDecryptT(TLWESample *sample, TLWEKey *key, int32_t M) {
+    TorusPolynomial phase = tlweGetPhase(sample, key);
+    return approxPhase(phase.getCoef(0), M);
+}
+
 // Poprawne? Napisac test
 // Tak, powinno byc ok - rozszerzam o k wielomianów
 void tlweSampleIndexExtract(LWESample *result, TLWESample *x, int32_t index, TLWEParams *params)
 {
     int32_t N = params->getDegree();
     int32_t k = params->getPolyAmount();
-
-    // for (int i = 0; i < k; i++)
-    // {
-    //     for (int j = 0; j <= index; j++)
-    //         result->setA(x->getA(i)->getCoef(index), i * N + j);
-    //     for (int j = index + 1; j < N; j++)
-    //         result->setA(-x->getA(i)->getCoef(N + index - j), i * N + j);
-    // }
-
-    for (int i = 0; i <= index; i++)
-        result->setA(x->getA(0)->getCoef(index - i), i);
-    // for (int i = (index + 1); i < N; i++)
-    //     result->setA(-x->getA(0)->getCoef(N + index - i), i);
+    // int32_t *resA = result->getA();
+    // int32_t *xA = x->getA(0)->getCoefAsArray()->data();
+    for (int32_t j = 0; j < k; j++)
+    {
+        for (int32_t i = 0; i <= index; i++)
+            result->setA(x->getA(j)->getCoef(index - i), j * N + i);
+        // resA[i] = xA[index - i];
+        for (int32_t i = index + 1; i < N; i++)
+            result->setA(-x->getA(j)->getCoef(N + index - i), j * N + i);
+        // resA[i] = xA[N + index - i];
+    }
 
     result->setB(x->getB()->getCoef(index));
 }

@@ -5,7 +5,7 @@ TLWEParams::TLWEParams(int32_t N, int32_t k, double alpha_min, double alpha_max)
     k{k},
     alpha_min{alpha_min},
     alpha_max{alpha_max},
-    lweParams{N*k, alpha_min, alpha_max} {}
+    lweParams{N, alpha_min, alpha_max} {}
 
 TLWEParams::~TLWEParams() {}
 

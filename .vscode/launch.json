@@ -116,6 +116,25 @@
             ]
         },
         {
+            "name": "(gdb) TFHE - gentestvect",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/gentestvect.o",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(gdb) TFHE - cmux",
             "type": "cppdbg",
             "request": "launch",

@@ -12,6 +12,8 @@ private:
 public:
     LweKeySwitch();
     LweKeySwitch(LWEKey *key);
+
+    std::array<std::array<std::array<LWESample, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> getSwitchKey();
     ~LweKeySwitch();
 };
 

@@ -1,7 +1,7 @@
 #include "../../include/lwe/LWEParams.h"
 #include <random>
 
-LWEParams::LWEParams(int32_t n, double minNoise, double maxNoise) : n{DEF_n},
+LWEParams::LWEParams(int32_t n, double minNoise, double maxNoise) : n{n},
                                                                     minNoise{minNoise},
                                                                     maxNoise{maxNoise} {}
 
