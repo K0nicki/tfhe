@@ -50,6 +50,7 @@ int main(int argc, char const *argv[])
             for (int i = 0; i < N; i++)
                 // testvect.getB()->setCoefficient(i, i);
                 testvect.getB()->setCoefficient(i, approxPhase(switchToTorus32(i, N),M));
+                // testvect.getB()->setCoefficient(i, switchToTorus32(i, 2*N));
             // testvect.getB()->setCoefficient(i, switchToTorus32(1, M));
 
             TLWESample resultRotation(tlweParams);
@@ -184,17 +185,35 @@ int main(int argc, char const *argv[])
             // Torus32 phase = lwePhaseN(&resultExtraction, tgswkey.getTLWEKey());
             // std::cout << "phase " << j << " = " << t32tod(phase)  << " v " << t32tod(lwePhase(&sample, &lwekey)) << std::endl;
 
+
+            // veryfication
+            int32_t offset = barab;
+            for (int i = 0; i < DEF_n; i++)
+                offset = (offset + 2*N - lwekey.getLWEKey()[i] *switchFromTorus32(sample.getA(i),2*N)) % (2*N);
+            
             Torus32 decrypt = lweDecryptN(&resultExtraction, tgswkey.getTLWEKey(), M);
             // Torus32 decrypt = lweDecrypt(&resultExtraction, &lwekey, M);
 
-            if (message != decrypt)
+            // if (message != decrypt)
+            if (message != ((offset < N)? testvect.getB()->getCoef(offset) : -testvect.getB()->getCoef(offset-N)));
             // if (decrypt != (message >= 0 ? switchToTorus32(1, M) : -switchToTorus32(1, M)))
             {
                 // std::cout << message << " v " << decrypt << std::endl;
-                // err++;
+                std::cout << message << " v " << offset <<" ? " << ((offset < N)? testvect.getB()->getCoef(offset) : -testvect.getB()->getCoef(offset-N)) << std::endl;
+                err++;
             }
             // std::cout << (message >= 0 ? switchToTorus32(1, M) : -switchToTorus32(1, M)) << " v " << decrypt << std::endl;
             std::cout << message << " v " << decrypt << std::endl;
+
+            // -----------------------------------------------------------------------------
+            //                          Conclusion
+            // -----------------------------------------------------------------------------
+            /* Sth strange happend. Decryption after Blind Rotation is exactly the same as for the check way
+             * in official implementation. Is not that mean it is working fine?
+             * 
+             * Live is not as pretty as it looks like... Decryption is the same for all of the testvectors :/
+             * So it destructsthe previous theory...
+            */
 
             // assert(message == decrypt);
         }
