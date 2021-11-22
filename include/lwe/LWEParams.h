@@ -29,6 +29,4 @@ public:
     void setNoiseMax(double maxNoise);
 
     LWEParams(int32_t n, double minNoise, double maxNoise);
-    LWEParams(LWEParams &) = delete;            // Modyfing is not allowed
-    LWEParams &operator=(LWEParams &) = delete; // This too
 };

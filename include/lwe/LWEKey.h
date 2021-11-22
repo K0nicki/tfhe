@@ -14,7 +14,7 @@ class LWEKey
 {
 private:
     LWEParams *params;
-    int32_t *key;
+    std::array<int32_t ,DEF_N> key;
 
 public:
     LWEParams *getParams();
@@ -24,8 +24,6 @@ public:
 
     LWEKey(LWEParams *params);
     ~LWEKey();
-    LWEKey(const LWEKey &) = delete; // Do not overwrite it
-    LWEKey *operator=(const LWEKey &) = delete;
 };
 
 /**

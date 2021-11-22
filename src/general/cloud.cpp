@@ -14,8 +14,10 @@ LweKeySwitch::LweKeySwitch(LWEKey *key)
         for (size_t j = 0; j < tt; j++)
             for (size_t k = 0; k < base - 1; k++)
             {
+                keySwitchingKey[i][j][k] = new LWESample;
                 int32_t in_M = (k + 1) * key->getLWEKey()[i] * (1U << (32 - DEF_basebit * (j + 1)));
-                this->keySwitchingKey[i][j][k] = lweEncrypt(&in_M, DEF_TLWE_ALPHA, key);
+                LWESample result = lweEncrypt(&in_M, DEF_TLWE_ALPHA, key);
+                this->keySwitchingKey[i][j][k] = &result;
             }
 }
 
@@ -69,6 +71,6 @@ LweKeySwitch *GateKey::getSwitchKey()
     return &switchKey;
 }
 
-std::array<std::array<std::array<LWESample, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> LweKeySwitch::getSwitchKey() {
+std::array<std::array<std::array<LWESample*, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> LweKeySwitch::getSwitchKey() {
     return keySwitchingKey;
 }

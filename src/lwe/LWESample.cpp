@@ -2,14 +2,14 @@
 
 LWESample::LWESample()
 {
-    this->a = new Torus32[DEF_n];
+    a.fill(0);
     this->b = 0;
     this->currentNoise = 0.;
 }
 
 LWESample::LWESample(LWEParams *params)
 {
-    this->a = new Torus32[params->getLength()];
+    a.fill(0);
     this->b = 0;
     this->currentNoise = 0.;
 }
@@ -36,11 +36,11 @@ void LWESample::setVariance(double value)
 
 Torus32 *LWESample::getA()
 {
-    return this->a;
+    return this->a.data();
 }
 
 Torus32 LWESample::getA(int i) {
-    return *(a+i);
+    return a.at(i);
 }
 
 

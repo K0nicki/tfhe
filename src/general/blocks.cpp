@@ -142,7 +142,7 @@ void keySwitch(LWESample* result, LWESample* source, GateKey* gk) {
     int32_t k = tlweparams->getPolyAmount();
     LWEParams *lweparams = tlweparams->getLWEParams();
     int32_t n = lweparams->getLength();
-    std::array<std::array<std::array<LWESample, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> switchkey = gk->getSwitchKey()->getSwitchKey();
+    std::array<std::array<std::array<LWESample*, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> switchkey = gk->getSwitchKey()->getSwitchKey();
 
     int32_t offset = 1 << (32 - (1+DEF_basebit*DEF_tt));
     int32_t mask = (1 << DEF_basebit) - 1;
@@ -161,8 +161,8 @@ void keySwitch(LWESample* result, LWESample* source, GateKey* gk) {
 
             if (l!=0) {
                 for (int m = 0; m < n; m++)
-                    result->setA(result->getA(m) - switchkey[j][i][l-1].getA(m),m);                
-                result->setB(result->getB() - switchkey[j][i][l-1].getA(n));
+                    result->setA(result->getA(m) - switchkey[j][i][l-1]->getA(m),m);                
+                result->setB(result->getB() - switchkey[j][i][l-1]->getA(n));
             }
         }
     }

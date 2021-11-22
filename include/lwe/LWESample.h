@@ -1,6 +1,7 @@
 #pragma once
 #include "../tfhe_core.h"
 #include "LWEParams.h"
+#include <array>
 
 /**
  * @brief LWESample means the class which contains encrypted message with the noise
@@ -14,7 +15,7 @@
 class LWESample
 {
 private:
-    Torus32* a;
+    std::array<Torus32 ,DEF_N> a;
     Torus32 b;
     double currentNoise;
 

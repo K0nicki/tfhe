@@ -50,6 +50,7 @@ Torus32 lwePhaseN(LWESample *sample, TLWEKey *key);
  */
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize);
 Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize);
+int32_t lweBoolDecrypt(LWESample* sample, TLWEKey *key, int32_t M);
 
 /**
  * @brief   Function clear LWE Sample object

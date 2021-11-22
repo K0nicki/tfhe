@@ -86,6 +86,11 @@ Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize)
     return approxPhase(phi, Msize);
 }
 
+int32_t lweBoolDecrypt(LWESample* sample, TLWEKey *key, int32_t M) {
+    Torus32 phase = lwePhaseN(sample, key);
+    return (phase > 0 ? 1 : 0);
+}
+
 void lweClear(LWESample *result, LWEParams *params)
 {
     const int32_t n = params->getLength();

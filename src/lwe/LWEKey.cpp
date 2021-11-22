@@ -3,13 +3,10 @@
 LWEKey::LWEKey(LWEParams *params)
 {
     this->params = params;
-    this->key = new int32_t[params->getLength()];
+    key.fill(0);
 }
 
-LWEKey::~LWEKey()
-{
-    delete[] key;
-}
+LWEKey::~LWEKey() {}
 
 void LWEKey::setKey(int32_t val, int i)
 {
@@ -23,5 +20,5 @@ LWEParams *LWEKey::getParams()
 
 int32_t *LWEKey::getLWEKey()
 {
-    return this->key;
+    return this->key.data();
 }

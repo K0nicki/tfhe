@@ -8,12 +8,12 @@ private:
     int32_t N;
     int32_t tt;
     int32_t base;
-    std::array<std::array<std::array<LWESample, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> keySwitchingKey; // N x t x 3 x 2 x N
+    std::array<std::array<std::array<LWESample*, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> keySwitchingKey; // N x t x 3 x 2 x N
 public:
     LweKeySwitch();
     LweKeySwitch(LWEKey *key);
 
-    std::array<std::array<std::array<LWESample, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> getSwitchKey();
+    std::array<std::array<std::array<LWESample*, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> getSwitchKey();
     ~LweKeySwitch();
 };
 
