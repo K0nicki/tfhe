@@ -29,7 +29,7 @@ void LWESample::setA(Torus32 value, int i)
     this->a[i] = value;
 }
 
-void LWESample::setVariance(double value)
+void LWESample::setNoise(double value)
 {
     this->currentNoise = value;
 }

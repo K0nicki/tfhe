@@ -5,22 +5,20 @@
 
 /**
  * @brief LWESample means the class which contains encrypted message with the noise
- * 
+ *
  * @param a             Randomly chosen mask
  * @param b             Result of encryption
  * @param currentNoise  Mean value of noise
- * 
- * @note                Overwritting is not allowed
  */
 class LWESample
 {
 private:
-    std::array<Torus32 ,DEF_N> a;
-    Torus32 b;
+    std::array<Torus32, DEF_N> a;       // array<int32_t, 1024>
+    Torus32 b; 
     double currentNoise;
 
 public:
-    //Getters
+    // Getters
     Torus32 getA(int i);
     Torus32 *getA();
     Torus32 getB();
@@ -29,7 +27,7 @@ public:
     // Setters
     void setB(Torus32 value);
     void setA(Torus32 value, int i);
-    void setVariance(double value);
+    void setNoise(double value);
 
     LWESample();
     LWESample(LWEParams *params);

@@ -15,7 +15,7 @@ LweKeySwitch::LweKeySwitch(LWEKey *key)
             for (size_t k = 0; k < base - 1; k++)
             {
                 keySwitchingKey[i][j][k] = new LWESample;
-                int32_t in_M = (k + 1) * key->getLWEKey()[i] * (1U << (32 - DEF_basebit * (j + 1)));
+                int32_t in_M = (k + 1) * key->getLWEKey(i) * (1U << (32 - DEF_basebit * (j + 1)));
                 LWESample result = lweEncrypt(&in_M, DEF_TLWE_ALPHA, key);
                 this->keySwitchingKey[i][j][k] = &result;
             }
@@ -29,10 +29,10 @@ BootstrappingKey::BootstrappingKey(TGSWKey *tgswKey, LWEKey *lweKey)
 {
     this->tgswParams = tgswKey->getTGSWparams();
 
-    for (int i = 0; i < DEF_n; i++)
+    for (int i = 0; i < DEF_N; i++)
     {
         bootstrappingKey[i] = new TGSWSample{tgswKey->getTGSWparams()};
-        tgswEncryptInt(bootstrappingKey[i], lweKey->getLWEKey()[i], DEF_TRLWE_ALPHA, tgswKey);
+        tgswEncryptInt(bootstrappingKey[i], lweKey->getLWEKey(i), DEF_TRLWE_ALPHA, tgswKey);
     }
 }
 

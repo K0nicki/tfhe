@@ -77,53 +77,53 @@ void polyMulByX_iMinOne(TorusPolynomial *result, TorusPolynomial *source, int32_
 }
 
 // Result = Source * X^p
-void polyMulByX_i(TorusPolynomial *result, TorusPolynomial *source, uint32_t p)
+void polyMulByX_i(TorusPolynomial *result, TorusPolynomial *source, int32_t p)
 {
     assert(result->getLenght() == source->getLenght());
     int32_t N = source->getLenght();
 
-    if (p < N)
-    {
-        for (int i = 0; i < p; i++)
-            result->setCoefficient(i, -source->getCoef(N - p + i));
-        for (int i = p; i < N; i++)
-            result->setCoefficient(i, source->getCoef(i - p));
-    }
-    else
-    {
-        uint32_t pp = p - N; // Because of modulo operation
-        for (int i = 0; i < pp; i++)
-            result->setCoefficient(i, source->getCoef(N - pp + i));
-        for (int i = pp; i < N; i++)
-            result->setCoefficient(i, -source->getCoef(i - pp));
-    }
-
     // if (p < N)
     // {
-    //     // for (int i = 0; i < (N - p); i++)
-    //     //     result->setCoefficient(i + p, -source->getCoef(i));
-    //     // for (int i = (N - p); i < N; i++)
-    //     //     result->setCoefficient(i + p - N, source->getCoef(i));
-
     //     for (int i = 0; i < p; i++)
-    //         result->setCoefficient(N - p + i, -source->getCoef(i));
-    //     for (int i = 1; i <= N - p; i++)
-    //         result->setCoefficient(N - p - i, source->getCoef(N - i));
+    //         result->setCoefficient(i, -source->getCoef(N - p + i));
+    //     for (int i = p; i < N; i++)
+    //         result->setCoefficient(i, source->getCoef(i - p));
     // }
     // else
     // {
     //     uint32_t pp = p - N; // Because of modulo operation
-    //     // Do exactly the same as above but change the sign
-    //     // for (int i = 0; i < (N - pp); i++)
-    //     //     result->setCoefficient(i + pp, -source->getCoef(i));
-    //     // for (int i = (N - pp); i < N; i++)
-    //     //     result->setCoefficient(i + pp - N, source->getCoef(i));
-
     //     for (int i = 0; i < pp; i++)
-    //         result->setCoefficient(N - pp + i, source->getCoef(i));
-    //     for (int i = 1; i <= N - pp; i++)
-    //         result->setCoefficient(N - pp - i, -source->getCoef(N - i));
+    //         result->setCoefficient(i, source->getCoef(N - pp + i));
+    //     for (int i = pp; i < N; i++)
+    //         result->setCoefficient(i, -source->getCoef(i - pp));
     // }
+
+    if (p < N)
+    {
+        for (int i = 0; i < (N - p); i++)
+            result->setCoefficient(i + p, source->getCoef(i));
+        for (int i = (N - p); i < N; i++)
+            result->setCoefficient(i + p - N, -source->getCoef(i));
+
+        // for (int i = 0; i < p; i++)
+        //     result->setCoefficient(N - p + i, -source->getCoef(i));
+        // for (int i = 1; i <= N - p; i++)
+        //     result->setCoefficient(N - p - i, source->getCoef(N - i));
+    }
+    else
+    {
+        int32_t pp = p - N; // Because of modulo operation
+        // Do exactly the same as above but change the sign
+        for (int i = 0; i < (N - pp); i++)
+            result->setCoefficient(i + pp, -source->getCoef(i));
+        for (int i = (N - pp); i < N; i++)
+            result->setCoefficient(i + pp - N, source->getCoef(i));
+
+        // for (int i = 0; i < pp; i++)
+        //     result->setCoefficient(N - pp + i, source->getCoef(i));
+        // for (int i = 1; i <= N - pp; i++)
+        //     result->setCoefficient(N - pp - i, -source->getCoef(N - i));
+    }
 }
 
 void torusPolyAddTo(TorusPolynomial *result, TorusPolynomial *a)

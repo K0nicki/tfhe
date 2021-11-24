@@ -21,7 +21,7 @@ class BootstrappingKey
 {
 private:
     TGSWParams *tgswParams;
-    std::array<TGSWSample*, DEF_n> bootstrappingKey;
+    std::array<TGSWSample*, DEF_N> bootstrappingKey;
 
 public:
     TGSWParams* getTGSWParams();

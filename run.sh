@@ -79,7 +79,7 @@ elif [ "$gentestvect" != "" ] && [ $gentestvect -eq 1 ]; then
 elif [ "$BOOTSTRAPPING" != "" ] && [ $BOOTSTRAPPING -eq 1 ]; then
     outputFile="bootstrappingtest"
 elif [ "$ALL" != "" ] && [ $ALL -eq 1 ]; then
-    for i in $(cat run.sh |grep  "\--" |awk '{print $1}' |head -n -3 |awk -F \) '{print $1}');do 
+    for i in $(cat run.sh |grep  "\--" |awk '{print $1}' |head -n -5 |awk -F \) '{print $1}');do 
         [ ! -d tests/${i/--/}test/test.txt ] & mkdir -p "tests/${i/--/}test";
         $0 $i >"tests/${i/--/}test/test.txt"; 
     done

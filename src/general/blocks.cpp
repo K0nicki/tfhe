@@ -19,36 +19,6 @@ void cMux(TLWESample *result, TGSWSample *cs, TLWESample *d1, TLWESample *d0, TG
     tlweAdd(result, &csResult, d0, tlweParams);
 }
 
-// void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, int length, GateKey *gateKey)
-// {
-//     int32_t N2 = 2 * gateKey->getTGSWParams()->getTLWEParams()->getDegree();
-//     int32_t k = gateKey->getTGSWParams()->getTLWEParams()->getPolyAmount();
-//     TGSWParams *tgswparams = gateKey->getTGSWParams();
-//     TLWEParams *tlweParams = tgswparams->getTLWEParams();
-//     TLWESample cMuxResult{tgswparams->getTLWEParams()};
-//     TLWESample d1{tlweParams};
-
-//     for (int i = 0; i < DEF_n; i++)
-//     {
-//         tlweClear(&cMuxResult, tlweParams);
-//         tlweClear(&d1, tlweParams);
-
-//         int32_t a_til = switchFromTorus32(lweSample->getA(i), N2);
-
-//         if (a_til == 0)
-//             continue; // Don't even try to rotate by 0 positions!
-
-//         for (int j = 0; j <= k; j++)
-//             polyMulByX_i(d1.getA(j), d0->getA(j), a_til);
-//         externalTgswProduct(&cMuxResult, &d1, gateKey->getBootstrappingKey()->getSampleAt(i), tgswparams);
-//         tlweAddTo(d0, &cMuxResult, tlweParams);
-
-//         // tlweCopy(d0, &cMuxResult, tlweParams);
-//     }
-
-//     tlweCopy(result, d0, tlweParams);
-// }
-
 void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, int length, GateKey *gateKey)
 {
     int32_t N2 = 2 * gateKey->getTGSWParams()->getTLWEParams()->getDegree();
@@ -56,31 +26,25 @@ void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, int length
     TGSWParams *tgswparams = gateKey->getTGSWParams();
     TLWEParams *tlweParams = tgswparams->getTLWEParams();
 
-    TLWESample d1{tlweParams};
-    TLWESample cMuxResult{tlweParams};
 
-    for (int i = 0; i < DEF_n; i++)
+    for (int i = 0; i < length; i++)
     {
-        tlweClear(&cMuxResult, tlweParams);
-        tlweClear(&d1, tlweParams);
+        TLWESample d1{tlweParams};
+        TLWESample cMuxResult{tlweParams};
 
         // compute ai
         int32_t a_til = switchFromTorus32(lweSample->getA(i), N2);
-        // int32_t a_til = (lweSample->getA(i) + (1 << (31 - DEF_Nbit - 1)) >> (32 - DEF_Nbit - 1));
 
-        // if (a_til == 0)
-        //     continue; // Don't even try to rotate by 0 positions!
+        if (a_til == 0)
+            continue; // Don't even try to rotate by 0 positions!
 
-        // prepare rotated testvect by ai position in case of bk(si) is 1
+        // Prepare rotated testvect by ai position in case of bk(si) is 1
         for (int j = 0; j <= k; j++)
             polyMulByX_i(d1.getA(j), d0->getA(j), a_til);
 
         // Blind Rotation - keep secret key encrypted in tgsw format but nevertheless perform rotation using CMUX gate
         // bk(si) ? d1 : d0
         cMux(&cMuxResult, gateKey->getBootstrappingKey()->getSampleAt(i), &d1, d0, tgswparams);
-
-        // if (!tlweEQ(d0, &cMuxResult, tlweParams))
-        // tlweAddTo(d0, &cMuxResult, tlweParams);
 
         // Override testvect with rotated (or not) testvect
         tlweCopy(d0, &cMuxResult, tlweParams);
@@ -107,32 +71,13 @@ void blindRotate(TLWESample *result, TLWESample *testvect, LWESample *lweSample,
     // Rotate testvect by well known -b parameter
     if (barab != 0)
         for (int i = 0; i <= k; i++)
-            polyMulByX_i(d0.getA(i), testvect->getA(i), 0);
+            polyMulByX_i(d0.getA(i), testvect->getA(i), b_til);
     else
         tlweCopy(&d0, testvect, tlweParams);
 
-    // perform a real bind rotation
-    rotate(result, &d0, lweSample, DEF_n, gateKey);
-    // for (int i = 0; i < DEF_n; i++)
-    // {
-    //     TLWESample cMuxResult{tgswparams->getTLWEParams()};
-    //     TLWESample d1{tgswparams->getTLWEParams()};
-    //     int32_t a_til = switchFromTorus32(lweSample->getA(i), N2);
-
-    //     if (a_til == 0)
-    //         return; // Don't even try to rotate by 0 positions!
-
-    //     // Rotate A and B
-    //     for (int i = 0; i <= k; i++)
-    //         polyMulByX_i(d1.getA(i), d0.getA(i), a_til);
-
-    //     // p ? d1 : d0
-    //     cMux(&cMuxResult, gateKey->getBootstrappingKey()->getSampleAt(i), &d1, &d0, tgswparams);
-
-    //     tlweCopy(&d0, &cMuxResult, tlweParams);
-    // }
-
-    // tlweCopy(result, &d0, tlweParams);
+    // Perform a real bind rotation
+    rotate(result, &d0, lweSample, DEF_N, gateKey);
+   
 }
 
 
@@ -153,16 +98,16 @@ void keySwitch(LWESample* result, LWESample* source, GateKey* gk) {
 
     for (int j = 0; j < N; j++)
     {
-        int32_t a_bar = source->getA(j) + offset;
+        uint32_t a_bar = source->getA(j) + offset;
 
         for (int i = 0; i < DEF_tt; i++)
         {
-            int32_t l = (a_bar >> (32 -(i+1)*DEF_basebit)) & mask;
+            uint32_t l = (a_bar >> (32 -(i+1)*DEF_basebit)) & mask;
 
             if (l!=0) {
                 for (int m = 0; m < n; m++)
                     result->setA(result->getA(m) - switchkey[j][i][l-1]->getA(m),m);                
-                result->setB(result->getB() - switchkey[j][i][l-1]->getA(n));
+                result->setB(result->getB() - switchkey[j][i][l-1]->getB());
             }
         }
     }
@@ -173,13 +118,15 @@ void bootstrapinglwe2lwe(LWESample *result, LWESample *source, GateKey *gateKey)
     TLWEParams *tlweParams = gateKey->getTGSWParams()->getTLWEParams();
     int32_t N = tlweParams->getDegree();
     TLWESample testvect{tlweParams};
-    TLWESample tlweresult{tlweParams};
+    TLWESample tlweResult{tlweParams};
+    LWESample extractionResult{tlweParams->getLWEParams()};
 
     // testvect[0][*] = 0, testvect[1][*] = 1
     for (int i = 0; i < N; i++)
         testvect.getB()->setCoefficient(i, switchToTorus32(1, 8));
 
-    blindRotate(&tlweresult, &testvect, source, gateKey);
+    blindRotate(&tlweResult, &testvect, source, gateKey);
 
-    tlweSampleIndexExtract(result, &tlweresult, 0, tlweParams);
+    tlweSampleIndexExtract(&extractionResult, &tlweResult, 0, tlweParams);
+    keySwitch(result, &extractionResult, gateKey);
 }

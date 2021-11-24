@@ -22,3 +22,8 @@ int32_t *LWEKey::getLWEKey()
 {
     return this->key.data();
 }
+
+int32_t LWEKey::getLWEKey(int i)
+{
+    return this->key[i];
+}

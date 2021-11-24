@@ -209,7 +209,8 @@ Torus32 tlweDecryptT(TLWESample *sample, TLWEKey *key, int32_t M) {
 // Tak, powinno byc ok - rozszerzam o k wielomianów
 void tlweSampleIndexExtract(LWESample *result, TLWESample *x, int32_t index, TLWEParams *params)
 {
-    int32_t N = params->getDegree();
+    // int32_t N = params->getDegree();
+    int32_t N = DEF_N;
     int32_t k = params->getPolyAmount();
     // int32_t *resA = result->getA();
     // int32_t *xA = x->getA(0)->getCoefAsArray()->data();
@@ -222,6 +223,14 @@ void tlweSampleIndexExtract(LWESample *result, TLWESample *x, int32_t index, TLW
             result->setA(-x->getA(j)->getCoef(N + index - i), j * N + i);
         // resA[i] = xA[N + index - i];
     }
+
+    // for (int32_t i = 0; i <= index; i++)
+    //     result->setA(x->getA(0)->getCoef(index - i), i);
+    // // resA[i] = xA[index - i];
+    // for (int32_t i = index + 1; i < N; i++)
+    //     // result->setA(-x->getA(j)->getCoef(N + index - i), j * N + i);
+    //     result->setA(-(x->getA(0)->getCoef(N + index - i)), i);
+    // // resA[i] = xA[N + index - i];
 
     result->setB(x->getB()->getCoef(index));
 }

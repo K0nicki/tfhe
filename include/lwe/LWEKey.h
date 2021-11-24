@@ -19,6 +19,7 @@ private:
 public:
     LWEParams *getParams();
     int32_t *getLWEKey();
+    int32_t getLWEKey(int i);
 
     void setKey(int32_t val, int i);
 
@@ -26,9 +27,3 @@ public:
     ~LWEKey();
 };
 
-/**
- * @brief           Generate random LWE key for the given parameters 
- * 
- * @param result    LWE Key for the result. It must contains initialized LWE Params
- */
-void lweKeyGen(LWEKey *result);

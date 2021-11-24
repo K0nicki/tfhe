@@ -10,7 +10,7 @@
  * 
  * @cite https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
  */
-LWEKey lweKeyGen();
+void lweKeyGen(LWEKey *result);
 
 /**
  * @brief           Encryption function
