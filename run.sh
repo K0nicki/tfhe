@@ -48,7 +48,7 @@ else
             BOOTSTRAPPING=1
             shift
             ;;
-            --all)
+            --all)          # Execute all tests and save output in tests/ dir
             ALL=1
             shift
             ;;

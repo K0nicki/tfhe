@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
         TGSWKey key{params};
         tgswKeyGen(&key);
 
-        LweKeySwitch testLWEKS{&key1024};
+        LweKeySwitch testLWEKS{&key, &key1024};
         BootstrappingKey testBK{&key, &key1024};
         GateKey testGK{&key, &key1024};
     }
