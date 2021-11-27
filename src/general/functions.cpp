@@ -1,4 +1,5 @@
 #include "../../include/general/functions.h"
+std::default_random_engine gen;
 
 static const int64_t _b32 = int64_t(1) << 32; // 2^32
 static const double _b32_double = _b32;       // 2^32
@@ -19,7 +20,6 @@ Torus32 dtot32(double message)
 Torus32 addGaussianNoise(Torus32 *message, double sigma)
 {
     std::normal_distribution<double> distrib(0., sigma);
-    std::default_random_engine gen;
 
     double err{distrib(gen)};
     return *message + dtot32(err);

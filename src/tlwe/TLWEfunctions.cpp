@@ -13,7 +13,7 @@ void tlweKeyGen(TLWEKey *key, TLWEParams *params)
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < N; j++)
-            (key->getIntKey(i))->setCoefficient(j, distrib(gen));
+            key->getIntKey(i)->setCoefficient(j, distrib(gen));
 }
 
 void tlweBaseEncryption(TLWESample *result, double alpha, TLWEKey *key)

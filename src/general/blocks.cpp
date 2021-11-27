@@ -19,15 +19,14 @@ void cMux(TLWESample *result, TGSWSample *cs, TLWESample *d1, TLWESample *d0, TG
     tlweAdd(result, &csResult, d0, tlweParams);
 }
 
-void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, int length, GateKey *gateKey)
+void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, GateKey *gateKey)
 {
     int32_t N2 = 2 * gateKey->getTGSWParams()->getTLWEParams()->getDegree();
     int32_t k = gateKey->getTGSWParams()->getTLWEParams()->getPolyAmount();
     TGSWParams *tgswparams = gateKey->getTGSWParams();
     TLWEParams *tlweParams = tgswparams->getTLWEParams();
 
-
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < DEF_N; i++)
     {
         TLWESample d1{tlweParams};
         TLWESample cMuxResult{tlweParams};
@@ -76,38 +75,37 @@ void blindRotate(TLWESample *result, TLWESample *testvect, LWESample *lweSample,
         tlweCopy(&d0, testvect, tlweParams);
 
     // Perform a real bind rotation
-    rotate(result, &d0, lweSample, DEF_N, gateKey);
-   
+    rotate(result, &d0, lweSample, gateKey);
 }
 
-
-void keySwitch(LWESample* result, LWESample* source, GateKey* gk) {
+void keySwitch(LWESample *result, LWESample *source, GateKey *gk)
+{
     TLWEParams *tlweparams = gk->getTGSWParams()->getTLWEParams();
-    int32_t N = tlweparams->getDegree();
-    int32_t k = tlweparams->getPolyAmount();
     LWEParams *lweparams = tlweparams->getLWEParams();
+    int32_t N = tlweparams->getDegree();
     int32_t n = lweparams->getLength();
-    std::array<std::array<std::array<LWESample*, (1U << DEF_basebit) - 1>, DEF_tt>, DEF_N> switchkey = gk->getSwitchKey()->getSwitchKey();
+    int32_t k = tlweparams->getPolyAmount();
+    std::array<std::array<std::array<LWESample *, (1U << DEF_basebit)>, DEF_tt>, DEF_N> switchkey = gk->getSwitchKey()->getSwitchKey();
 
-    int32_t offset = 1 << (32 - (1+DEF_basebit*DEF_tt));
-    int32_t mask = (1 << DEF_basebit) - 1;
+    uint32_t offset = 1 << (32 - (1 + DEF_basebit * DEF_tt));
+    uint32_t mask = (1 << DEF_basebit) - 1;
 
     // result[0] = 0, result[1] = 0, result[2] = source[2]
     lweClear(result, lweparams);
     result->setB(source->getB());
 
-    for (int j = 0; j < N; j++)
+    for (int j = 0; j < DEF_N; j++)
     {
         uint32_t a_bar = source->getA(j) + offset;
-
         for (int i = 0; i < DEF_tt; i++)
         {
-            uint32_t l = (a_bar >> (32 -(i+1)*DEF_basebit)) & mask;
-
-            if (l!=0) {
-                for (int m = 0; m < n; m++)
-                    result->setA(result->getA(m) - switchkey[j][i][l-1]->getA(m),m);                
-                result->setB(result->getB() - switchkey[j][i][l-1]->getB());
+            uint32_t l = (a_bar >> (32 - (i + 1) * DEF_basebit)) & mask;
+            if (l != 0)
+            {
+                lweSubTo(result, switchkey[j][i][l], lweparams);
+                // for (int m = 0; m < n; m++)
+                //     result->setA(result->getA(m) - switchkey[j][i][l-1]->getA(m), m);
+                // result->setB(result->getB() - switchkey[j][i][l-1]->getB());
             }
         }
     }

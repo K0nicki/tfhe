@@ -7,12 +7,6 @@ TGSWSampleFft::TGSWSampleFft(TGSWSample* sample)
 {
     this->l = sample->getDecompLength();
     this->k = sample->getPolyNumber();
-
-    // TODO: zrobić fft z wejściowego sampla
-    // // TODO: Walidacja pętli ????
-    // for (int i = 0; i < 2*l; i++)
-    //     for (int j = 0; j < 2; j++)
-    //         torusPolyfft<DEF_N>(this->getPoly(i, j), sample->getSampleAt(i)->getA(j)->getCoefAsArray());
 }
 
 TGSWSampleFft::~TGSWSampleFft()

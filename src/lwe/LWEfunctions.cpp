@@ -46,20 +46,49 @@ LWESample lweEncrypt(Torus32 *message, double alpha, LWEKey *key)
     return result;
 }
 
-Torus32 lwePhase(LWESample *sample, LWEKey *key)
+LWESample lweEncrypt(Torus32 *message, double alpha, TLWEKey *key)
 {
-    int32_t n{key->getParams()->getLength()};
-    Torus32 axs{0};
+    const int32_t n{key->getTLWEParams()->getLWEParams()->getLength()};
+    LWESample result{key->getTLWEParams()->getLWEParams()};
+    std::uniform_int_distribution<Torus32> distrib(INT32_MIN, INT32_MAX);
+    int32_t *s = key->getIntKey(0)->getCoefAsArray()->data();
 
-    Torus32 *a{sample->getA()};
-    int32_t *s{key->getLWEKey()};
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
-    for (int32_t i = 0; i < n; i++)
-        axs += a[i] * s[i];
-    return sample->getB() - axs;
+    result.setB(addGaussianNoise(message, alpha));  // b = delta * m + e
+    for (int i = 0; i < n; i++)                     // b = a*s + (delta * m + e)
+    {
+        result.setA(distrib(gen), i);
+        result.setB(result.getB() + result.getA(i) * s[i]);
+    }
+
+    result.setNoise(alpha * alpha);
+    return result;
 }
 
-template <int32_t n = DEF_n>
+LWESample lweEncryptWthExtNoise(Torus32 *message, double alpha, Torus32 noise, LWEKey *key) {
+
+    const int32_t n{key->getParams()->getLength()};
+    LWESample result{key->getParams()};
+    std::uniform_int_distribution<Torus32> distrib(INT32_MIN, INT32_MAX);
+    int32_t *s = key->getLWEKey();
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    result.setB(*message + noise);                  // b = delta * m + e
+    for (int i = 0; i < n; i++)                     // b = a*s + (delta * m + e)
+    {
+        result.setA(distrib(gen), i);
+        result.setB(result.getB() + result.getA(i) * s[i]);
+    }
+
+    result.setNoise(alpha * alpha);
+    return result;
+}
+
+template <int32_t n = DEF_N>
 Torus32 lwePhase(LWESample *sample, LWEKey *key)
 {
     // int32_t n{key->getParams()->getLength()};
@@ -74,8 +103,9 @@ Torus32 lwePhase(LWESample *sample, LWEKey *key)
 }
 
 template <int32_t n = DEF_N>
-Torus32 lwePhaseN(LWESample *sample, TLWEKey *key)
+Torus32 lwePhase(LWESample *sample, TLWEKey *key)
 {
+    // int32_t n{key->getParams()->getLength()};
     Torus32 axs{0};
 
     Torus32 *a{sample->getA()};
@@ -86,21 +116,31 @@ Torus32 lwePhaseN(LWESample *sample, TLWEKey *key)
     return sample->getB() - axs;
 }
 
+Torus32 lwePhase(LWESample *sample, LWEKey *key)
+{
+    return lwePhase<DEF_N>(sample, key);
+}
+
+Torus32 lwePhase(LWESample *sample, TLWEKey *key)
+{
+    return lwePhase<DEF_N>(sample, key);
+}
+
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize)
 {
     Torus32 phi{lwePhase(sample, key)};
     return approxPhase(phi, Msize);
 }
 
-Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize)
+Torus32 lweDecrypt(LWESample *sample, TLWEKey *key, int32_t Msize)
 {
-    Torus32 phi{lwePhaseN(sample, key)};
+    Torus32 phi{lwePhase(sample, key)};
     return approxPhase(phi, Msize);
 }
 
 int32_t lweBoolDecrypt(LWESample *sample, TLWEKey *key, int32_t M)
 {
-    Torus32 phase = lwePhaseN(sample, key);
+    Torus32 phase = lwePhase(sample, key);
     return phase > 0 ? 0 : 1;
 }
 
@@ -125,7 +165,7 @@ void lweAdd(LWESample *result, LWESample *sample, LWEParams *params)
     result->setNoise(result->getCurrentNoise() + sample->getCurrentNoise());
 }
 
-void lweSub(LWESample *result, LWESample *sample, LWEParams *params)
+void lweSubTo(LWESample *result, LWESample *sample, LWEParams *params)
 {
     const int32_t n = params->getLength();
     for (int i = 0; i < n; i++)

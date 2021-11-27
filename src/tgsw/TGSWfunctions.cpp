@@ -79,7 +79,7 @@ TGSWSampleFft tgswEncryptFft(int32_t msg, double alpha, TGSWKey *key)
     tgswEncryptInt(&sample, msg, alpha, key);
 
     for (int i = 0; i < 2 * l; i++)
-        for (int j = 0; j <= k; j++)
+        for (int j = 0; j < k; j++)
             torusPolyfft<DEF_N>(result.getPoly(i, j), sample.getSampleAt(i)->getA(j)->getCoefAsArray());
 
     return result;

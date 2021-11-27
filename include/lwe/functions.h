@@ -27,7 +27,8 @@ void lweKeyGen(LWEKey *result);
  * @param key       The secret key, necessary to encrypt the message
  */
 LWESample lweEncrypt(Torus32 *message, double noise, LWEKey *key);
-
+LWESample lweEncrypt(Torus32 *message, double noise, TLWEKey *key);
+LWESample lweEncryptWthExtNoise(Torus32 *message, double alpha, Torus32 noise, LWEKey *key);
 /**
  * @brief           Get phase of the encrypted in Torus32 message
  *                  Use pattern phi = b - a*s
@@ -37,9 +38,7 @@ LWESample lweEncrypt(Torus32 *message, double noise, LWEKey *key);
  * @return          Torus32 phase of the encrypted message (needed to be aproximated for full encryption)
  */
 Torus32 lwePhase(LWESample *sample, LWEKey *key);
-
-template <int32_t n=DEF_N>
-Torus32 lwePhaseN(LWESample *sample, TLWEKey *key);
+Torus32 lwePhase(LWESample *sample, TLWEKey *key);
 /**
  * @brief           Decryption function. It returns a Torus32 value which is expected result
  * 
@@ -49,7 +48,7 @@ Torus32 lwePhaseN(LWESample *sample, TLWEKey *key);
  * @return          Torus32 encrypted message
  */
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize);
-Torus32 lweDecryptN(LWESample *sample, TLWEKey *key, int32_t Msize);
+Torus32 lweDecrypt(LWESample *sample, TLWEKey *key, int32_t Msize);
 int32_t lweBoolDecrypt(LWESample* sample, TLWEKey *key, int32_t M);
 
 /**
@@ -74,7 +73,7 @@ void lweAdd(LWESample *a, LWESample *b, LWEParams *params);
  * @param sample    This sample will be substracted from the result
  * @param params    Provide information about the key lenght
  */
-void lweSub(LWESample *a, LWESample *b, LWEParams *params);
+void lweSubTo(LWESample *a, LWESample *b, LWEParams *params);
 
 /**
  * @brief    Copy LWE samples

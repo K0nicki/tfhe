@@ -34,12 +34,16 @@ int main(int argc, char const *argv[])
 
         GateKey gk{&tgswkey, &lwekey};
 
+        LWESample resultExtraction(tlweParams->getLWEParams());
+        TLWESample resultRotation(tlweParams);
+        Torus32 message = 0;
+        Torus32 decrypt = 0;
         err = 0;
 
         for (int trial = 0; trial < trials; trial++)
         {
             bool binMsg = rand() % 2;
-            Torus32 message{binMsg ? switchToTorus32(1, M) : -switchToTorus32(1, M)};
+            message = binMsg ? switchToTorus32(1, M) : -switchToTorus32(1, M);
             // Torus32 message{switchToTorus32(trial, M)};
             sample = lweEncrypt(&message, DEF_TRLWE_ALPHA, &lwekey);
 
@@ -49,20 +53,12 @@ int main(int argc, char const *argv[])
                 // testvect.getB()->setCoefficient(i, switchToTorus32(i, 2*N));
             testvect.getB()->setCoefficient(i, switchToTorus32(1, M));
 
-            TLWESample resultRotation(tlweParams);
-            // tlweClear(&resultRotation, tlweParams);
             blindRotate(&resultRotation, &testvect, &sample, &gk);
-
-            LWESample resultExtraction(tlweParams->getLWEParams());
             tlweSampleIndexExtract(&resultExtraction, &resultRotation, 0, tlweParams);
 
-            Torus32 decrypt = lweDecryptN(&resultExtraction, tgswkey.getTLWEKey(), M);
-
+            decrypt = lweDecrypt(&resultExtraction, tgswkey.getTLWEKey(), M);
             if (message != decrypt)
-            {
-                // std::cout << message << " v " << offset <<" ? " << ((offset < N)? testvect.getB()->getCoef(offset) : -testvect.getB()->getCoef(offset-N)) << std::endl;
                 err++;
-            }
             std::cout << message << " v " << decrypt << " = " << t32tod(decrypt) << std::endl;
             // std::cout << t32tod(message) << " v " << t32tod(decrypt) << std::endl;
             

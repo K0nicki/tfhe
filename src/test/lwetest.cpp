@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
             subSample1 = lweEncrypt(&message, alpha, key);
             subSample2 = lweEncrypt(&message, alpha, key);
             lweCopy(&subSampleResult, &subSample1, key->getParams());
-            lweSub(&subSampleResult, &subSample2, key->getParams());
+            lweSubTo(&subSampleResult, &subSample2, key->getParams());
             // for (int i = 0; i < key->getParams()->getLength(); i++)
             // {
 
