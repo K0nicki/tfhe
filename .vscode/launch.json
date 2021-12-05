@@ -173,6 +173,25 @@
             ]
         },
         {
+            "name": "(gdb) TFHE - scenario",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/scenariotest.o",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(gdb) TFHE - fft",
             "type": "cppdbg",
             "request": "launch",

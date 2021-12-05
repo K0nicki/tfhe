@@ -128,8 +128,8 @@ Torus32 lwePhase(LWESample *sample, TLWEKey *key)
 
 Torus32 lweDecrypt(LWESample *sample, LWEKey *key, int32_t Msize)
 {
-    Torus32 phi{lwePhase(sample, key)};
-    return approxPhase(phi, Msize);
+    Torus32 phi{lwePhase(sample, key)};         // Get phase
+    return approxPhase(phi, Msize);             // Approximation
 }
 
 Torus32 lweDecrypt(LWESample *sample, TLWEKey *key, int32_t Msize)

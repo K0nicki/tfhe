@@ -117,14 +117,14 @@ void bootstrapinglwe2lwe(LWESample *result, LWESample *source, GateKey *gateKey)
     int32_t N = tlweParams->getDegree();
     TLWESample testvect{tlweParams};
     TLWESample tlweResult{tlweParams};
-    LWESample extractionResult{tlweParams->getLWEParams()};
+    // LWESample extractionResult{tlweParams->getLWEParams()};
 
     // testvect[0][*] = 0, testvect[1][*] = 1
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < DEF_N; i++)
         testvect.getB()->setCoefficient(i, switchToTorus32(1, 8));
 
     blindRotate(&tlweResult, &testvect, source, gateKey);
 
-    tlweSampleIndexExtract(&extractionResult, &tlweResult, 0, tlweParams);
-    keySwitch(result, &extractionResult, gateKey);
+    tlweSampleIndexExtract(result, &tlweResult, 0, tlweParams);
+    // keySwitch(result, &extractionResult, gateKey);
 }

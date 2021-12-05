@@ -116,3 +116,92 @@ std::array<std::array<std::array<LWESample *, (1U << DEF_basebit)>, DEF_tt>, DEF
 {
     return keySwitchingKey;
 }
+
+/**
+ * Functions needed for presentation
+ */
+LWEKey generatePrivateLWEKey(LWEParams* params) {
+    LWEKey lwekey(params);
+    lweKeyGen(&lwekey);
+
+    return lwekey;
+}
+
+TGSWKey generatePrivateTGSWKey(TGSWParams* params) {
+    TGSWKey tgswkey{params};
+    tgswKeyGen(&tgswkey);
+
+    return tgswkey;
+}
+
+GateKey generateGateKey(LWEKey* lwekey, TGSWKey* tgswkey) {
+    // Generate public Cloud Key
+    GateKey gk(tgswkey, lwekey);
+
+    return gk;
+}
+
+Torus32 generateMessage() {
+    int32_t M = 8;
+    bool binMsg = rand() % 2;
+    int32_t msg = binMsg ? switchToTorus32(1, M) : -switchToTorus32(1, M);
+    return msg;
+}
+
+int32_t testAdditionTillErrorOccurs(LWESample& s1, Torus32& plaintext1, LWEKey& key) {
+    int32_t M = 8;
+    int32_t loops = 1;
+    bool condition = true;
+    LWEParams* params = key.getParams();
+    Torus32 res = 0;
+    int32_t msg0 = 0;
+    LWESample backupSample{params};
+    LWESample s2 = lweEncrypt(&msg0, DEF_TLWE_ALPHA, &key);  // 0, we want to test only noise behaviour
+
+    while (condition) {
+        lweAdd(&s1, &s2, params);
+        res = lweDecrypt(&s1, &key, M);
+
+        if (res != plaintext1) {
+            lweCopy(&s1, &backupSample, params); // keep msg1 at 1 operation before noise exceeds critical lvl
+            condition=!condition;
+        }
+        
+        if (!condition)
+            break;
+            
+        lweCopy(&backupSample, &s1, params);
+        loops++;
+    }
+    return loops;
+}
+
+int32_t testAdditionTillErrorOccurs(LWESample& s1, Torus32& plaintext1, TLWEKey* key) {
+    int32_t M = 8;
+    int32_t loops = 1;
+    bool condition = true;
+    LWEParams* params = key->getTLWEParams()->getLWEParams();
+    Torus32 res = 0;
+    int32_t msg0 = 0;
+    LWESample backupSample{params};
+    LWESample s2 = lweEncrypt(&msg0, DEF_TLWE_ALPHA, key);  // 0, we want to test only noise behaviour
+
+    while (condition) {
+        res = lweDecrypt(&s1, key, M);
+        lweAdd(&s1, &s2, params);
+        res = lweDecrypt(&s1, key, M);
+
+        if (res != plaintext1)
+            condition=!condition;
+        
+        if (!condition)
+            break;
+        lweCopy(&backupSample, &s1, params);
+        loops++;
+    }
+    return loops;
+}
+
+void bootstrapping(LWESample& victim, GateKey& gk) {
+    bootstrapinglwe2lwe(&victim, &victim, &gk);
+}

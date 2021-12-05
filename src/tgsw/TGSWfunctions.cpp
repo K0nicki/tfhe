@@ -69,38 +69,6 @@ void tgswEncryptInt(TGSWSample *sample, int32_t message, double alpha, TGSWKey *
     sample = tgswAddMxH(sample, message, key->getTGSWparams());
 }
 
-TGSWSampleFft tgswEncryptFft(int32_t msg, double alpha, TGSWKey *key)
-{
-    TGSWSample sample{key->getTGSWparams()};
-    TGSWSampleFft result{&sample};
-    int32_t k = key->getTGSWparams()->getTLWEParams()->getPolyAmount();
-    int32_t l = key->getTGSWparams()->getDecompositionLength();
-
-    tgswEncryptInt(&sample, msg, alpha, key);
-
-    for (int i = 0; i < 2 * l; i++)
-        for (int j = 0; j < k; j++)
-            torusPolyfft<DEF_N>(result.getPoly(i, j), sample.getSampleAt(i)->getA(j)->getCoefAsArray());
-
-    return result;
-}
-
-TGSWSampleFft tgswEncryptPolyFft(IntPolynomial *msg, double alpha, TGSWKey *key)
-{
-    TGSWSample sample{key->getTGSWparams()};
-    TGSWSampleFft result{&sample};
-    int32_t k = key->getTGSWparams()->getTLWEParams()->getPolyAmount();
-    int32_t l = key->getTGSWparams()->getDecompositionLength();
-
-    tgswEncryptIntPoly(&sample, msg, alpha, key);
-
-    for (int i = 0; i < 2 * l; i++)
-        for (int j = 0; j <= k; j++)
-            torusPolyfft<DEF_N>(result.getPoly(i, j), sample.getSampleAt(i)->getA(j)->getCoefAsArray());
-
-    return result;
-}
-
 template <int32_t N = DEF_N, int32_t l = DEF_l, int32_t bg = DEF_Bg>
 std::array<IntPolynomial *, 2 * l> decomposition(TLWESample *sample, TGSWParams *params)
 {
@@ -129,42 +97,6 @@ std::array<IntPolynomial *, 2 * l> decomposition(TLWESample *sample, TGSWParams 
     }
 
     return decompVect;
-}
-
-template <int32_t N = DEF_N, int32_t l = DEF_l, int32_t bg = DEF_Bg>
-std::array<FftPoly, 2 * l> decompositionFft(TLWESample *sample, TGSWParams *params)
-{
-    int32_t k = params->getTLWEParams()->getPolyAmount();
-    int32_t rows = params->getNoRows();
-    std::array<FftPoly, 2 * l> decompVectFft;
-    std::array<IntPolynomial *, 2 * l> decomposedVect;
-
-    decomposedVect = decomposition(sample, params);
-
-    for (int i = 0; i < 2 * l; i++)
-        torusPolyfft<DEF_N>(&(decompVectFft.at(i)), decomposedVect.at(i)->getCoefAsArray());
-
-    return decompVectFft;
-}
-
-void externalTgswProduct(TLWESample *result, TLWESample *tlweSample, TGSWSampleFft *tgswSampleFft, TGSWParams *params)
-{
-    std::array<FftPoly, 2 * DEF_l> decompVectFft;
-    std::array<FftPoly, 2> resultTlweFft;
-
-    decompVectFft = decompositionFft(tlweSample, params);
-
-    for (int j = 0; j < resultTlweFft.size(); j++)
-        resultTlweFft.at(j) = mulPolyFD(&decompVectFft.at(0), tgswSampleFft->getPoly(0, j));
-
-    for (int i = 1; i < 2 * DEF_l; i++)
-        for (int j = 0; j < resultTlweFft.size(); j++)
-            fmaPolyFD(&(resultTlweFft.at(j)), &(decompVectFft.at(i)), tgswSampleFft->getPoly(i, j));
-
-    for (int j = 0; j < resultTlweFft.size(); j++)
-        torusPolyifft<DEF_N>(result->getA(j)->getCoefAsArray(), &(resultTlweFft.at(j)));
-
-    result->setNoise(result->getNoise() + tlweSample->getNoise());
 }
 
 void externalTgswProduct(TLWESample *result, TLWESample *tlweSample, TGSWSample *tgswSample, TGSWParams *params)

@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
 
     std::vector<TGSWParams *> tgswparams1024 = {&tgswParams1024_1};
     double alpha = DEF_TLWE_ALPHA;
-    int trials = 30;
+    int trials = 5;
     int32_t M = 8;
     int err = 0;
     double avgTime = 0;

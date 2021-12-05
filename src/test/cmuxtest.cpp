@@ -22,9 +22,20 @@ int main(int argc, char const *argv[])
     int min;
     int max;
 
-    int trials = 123;
+    int trials = 5;
     int M = 8;
     double avgTime = 0;
+
+    std::cout << "Params:\nKey Length: " << tgswParams1024_1.getTLWEParams()->getDegree() << "\nPolynomials amount: " << tgswParams1024_1.getTLWEParams()->getPolyAmount()
+                << "\ntrials: " << trials << "\nalpha: " << alpha << "\nmodulo: " << M << std::endl << std::endl;
+
+    std::vector<int32_t> m(trials);
+    std::vector<TorusPolynomial> d0Polys(trials);
+    std::vector<TorusPolynomial> d1Polys(trials);
+    TGSWSample sample{&tgswParams1024_1};
+    std::vector<TGSWSample *> cs(trials);
+    std::vector<TLWESample> d0s(trials);
+    std::vector<TLWESample> d1s(trials);
 
     for (TGSWParams *params : tgswparams1024)
     {
@@ -33,38 +44,26 @@ int main(int argc, char const *argv[])
         TGSWKey key{params};
         tgswKeyGen(&key);
 
-        std::vector<int32_t> m(trials);
         for (int32_t &i : m)
             i = distrib(gen);
 
-        std::vector<TorusPolynomial> d0Polys(trials);
-        for (int i = 0; i < trials; i++)
+        for (int i = 0; i < trials; i++){
+            // d0 encryption
             for (int j = 0; j < N; j++)
                 d0Polys[i].setCoefficient(j, switchToTorus32(distrib07(gen), M));
 
-        std::vector<TorusPolynomial> d1Polys(trials);
-        for (int i = 0; i < trials; i++)
+            // d1 encryption
             for (int j = 0; j < N; j++)
                 d1Polys[i].setCoefficient(j, switchToTorus32(distrib07(gen), M));
 
-        // cs encrypted
-        TGSWSample sample{params};
-        std::vector<TGSWSample *> cs(trials);
-        for (int i = 0; i < trials; i++)
-        {
+            // cs encryption
             cs[i] = new TGSWSample{params};
             tgswEncryptInt(cs[i], m[i], alpha, &key);
-        }
 
-        // d0 encrypted
-        std::vector<TLWESample> d0s(trials);
-        for (int i = 0; i < trials; i++)
+            // Message encryption
             d0s[i] = tlweEncrypt(&(d0Polys[i]), alpha, key.getTLWEKey());
-
-        // d1 encrypted
-        std::vector<TLWESample> d1s(trials);
-        for (int i = 0; i < trials; i++)
             d1s[i] = tlweEncrypt(&(d1Polys[i]), alpha, key.getTLWEKey());
+        }
 
         // CMUX validation
         std::vector<TLWESample> result(trials);
@@ -91,11 +90,11 @@ int main(int argc, char const *argv[])
                 assert(torusResult[trial].getCoef(j) == ((m[trial] > 0) ? d1Polys[trial].getCoef(j) : d0Polys[trial].getCoef(j)));
 
             // Show randomly chosen message
-            // min = rand() % torusResult[trial].getLenght();
-            // max = min + 1;
-            // for (int j = min; j < max; j++)
-            //     std::cout << torusResult[trial].getCoef(j) << " == " << m[trial] << " ? "
-            //               << d1Polys[trial].getCoef(j) << " : " << d0Polys[trial].getCoef(j) << std::endl;
+            min = rand() % torusResult[trial].getLenght();
+            max = min + 1;
+            for (int j = min; j < max; j++)
+                std::cout << t32tod(torusResult[trial].getCoef(j)) << " == " << m[trial] << " ? "
+                          << t32tod(d1Polys[trial].getCoef(j)) << " : " << t32tod(d0Polys[trial].getCoef(j)) << std::endl;
         }
 
         std::cout << "Total errors: " << err << std::endl;

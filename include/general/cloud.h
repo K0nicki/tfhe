@@ -46,3 +46,15 @@ public:
     GateKey(TGSWKey *tgswKey, LWEKey *lweKey);
     ~GateKey();
 };
+
+
+/**
+ * Functions needed for presentation
+ */
+LWEKey generatePrivateLWEKey(LWEParams* params);
+TGSWKey generatePrivateTGSWKey(TGSWParams* params);
+GateKey generateGateKey(LWEKey* lwekey, TGSWKey* tgswkey);
+Torus32 generateMessage();
+int32_t testAdditionTillErrorOccurs(LWESample& s1, Torus32& plaintext1, LWEKey& key);
+int32_t testAdditionTillErrorOccurs(LWESample& s1, Torus32& plaintext1, TLWEKey* key);
+void bootstrapping(LWESample& victim, GateKey& gk);

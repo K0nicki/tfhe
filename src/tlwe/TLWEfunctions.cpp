@@ -49,12 +49,12 @@ TLWESample tlweEncrypt(TorusPolynomial *message, double alpha, TLWEKey *key)
 
     for (int i = 0; i < N; i++)
     {
-        rCoef = (&result)->getB()->getCoef(i);
-        mCoef = message->getCoef(i);
-        // a*s + err + m
-        (&result)->getB()->setCoefficient(i, rCoef + mCoef);
-    }
+        rCoef = result.getB()->getCoef(i);          // result[i]
+        mCoef = message->getCoef(i);                // message[i]
 
+        // a*s + err + m
+        result.getB()->setCoefficient(i, rCoef + mCoef);
+    }
     return result;
 }
 

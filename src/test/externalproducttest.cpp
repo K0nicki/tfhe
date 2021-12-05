@@ -22,13 +22,13 @@ int main(int argc, char const *argv[])
     int max;
 
     int32_t M = 8;
-    int32_t trials = 1000;
+    int32_t trials = 1;
     double avgTime = 0;
 
     for (TGSWParams *params : allParams1024)
     {
         std::cout << "Params:\nKey Length: " << params->getTLWEParams()->getDegree() << "\nPolynomials amount: " << params->getTLWEParams()->getPolyAmount()
-                  << "\ntrials: " << trials << "\nalpha: " << alpha << std::endl
+                  << "\ntrials: " << trials << "\nalpha: " << alpha << "\nmodulo: " << M << std::endl << std::endl
                   << std::endl;
         int err = 0;
         int32_t N = params->getTLWEParams()->getDegree();
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
 
         for (int trial = 0; trial < trials; trial++)
         {
-            int multiplier = distribMul(gen);
+            int multiplier = distribMul(gen);       // multiplier := <0, 3>
             // std::cout << "Selected multiplier: " << multiplier << std::endl;
 
             TorusPolynomial msg;
@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
             TLWESample resultm1{params->getTLWEParams()};
 
             for (int i = 0; i < msg.getCoefAsArray()->size(); i++)
-                msg.setCoefficient(i, switchToTorus32(distrib(gen), M));
+                msg.setCoefficient(i, switchToTorus32(distrib(gen), M));        // Random message
 
             TLWESample encypt = tlweEncrypt(&msg, alpha, key.getTLWEKey());
 
@@ -62,10 +62,10 @@ int main(int argc, char const *argv[])
             tgswEncryptInt(&tgswSample1, multiplier, alpha, &key);
 
             // External product
-            // TRGSW x TRLWE = TRLWE
+            
             start = std::chrono::system_clock::now();
             // ----------------------------------------------------------
-            externalTgswProduct(&result, &encypt, &tgswSample1, params);
+            externalTgswProduct(&result, &encypt, &tgswSample1, params);        // TRGSW x TRLWE = TRLWE
             // ----------------------------------------------------------
             end = std::chrono::system_clock::now();
             avgTime += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -76,9 +76,6 @@ int main(int argc, char const *argv[])
             {
                 if (msg.getCoef(i) * multiplier != decrypt.getCoef(i))
                     err++;
-                // std::cout << msg.getCoef(i) << " v " << decrypt.getCoef(i) << std::endl;
-                // else
-                //     std::cout << msg.getCoef(i)*multiplier << " v " << decrypt.getCoef(i) << std::endl;
 
                 assert(msg.getCoef(i) * multiplier == decrypt.getCoef(i));
                 assert(switchFromTorus32(msg.getCoef(i) * multiplier, M) == switchFromTorus32(decrypt.getCoef(i), M));
@@ -86,10 +83,10 @@ int main(int argc, char const *argv[])
 
             min = rand() % N;
             max = min + 1;
-            // for (int i = min; i < max; i++)
-            //     // std::cout << switchFromTorus32(msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
-            //     std::cout << switchFromTorus32(msg.getCoef(i), M) << "*" << multiplier << " == "
-            //               << switchFromTorus32(msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
+            for (int i = min; i < max; i++)
+                // std::cout << switchFromTorus32(msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
+                std::cout << switchFromTorus32(msg.getCoef(i), M) << "*" << multiplier << " == "
+                          << switchFromTorus32(msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
 
             // Negative numbers
             // Test cs = -1 * multiplier
@@ -112,9 +109,6 @@ int main(int argc, char const *argv[])
                 // -0 == 0
                 if (msg.getCoef(i) * multiplier == decrypt.getCoef(i) && msg.getCoef(i) * multiplier != 0 && msg.getCoef(i) * multiplier != INT32_MIN)
                     err++;
-                // std::cout << msg.getCoef(i) << " v " << decrypt.getCoef(i) << std::endl;
-                // else
-                //     std::cout << msg.getCoef(i)*multiplier << " v " << decrypt.getCoef(i) << std::endl;
 
                 assert(-msg.getCoef(i) * multiplier == decrypt.getCoef(i));
                 assert(switchFromTorus32(-msg.getCoef(i) * multiplier, M) == switchFromTorus32(decrypt.getCoef(i), M));
@@ -122,11 +116,10 @@ int main(int argc, char const *argv[])
 
             min = rand() % N;
             max = min + 1;
-            // for (int i = min; i < max; i++)
-            //     std::cout << switchFromTorus32(msg.getCoef(i), M) << "*" << -multiplier << " == "
-            //               << switchFromTorus32(-msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
+            for (int i = min; i < max; i++)
+                std::cout << switchFromTorus32(msg.getCoef(i), M) << "*" << -multiplier << " == "
+                          << switchFromTorus32(-msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
 
-            // std::cout << std::endl;
         }
         std::cout << "Total errors: " << err << std::endl;
         std::cout << "Average External Product function execution time[s]: " << avgTime / trials / allParams1024.size() * 1e-6 / 2 << std::endl;

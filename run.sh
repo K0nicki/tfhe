@@ -48,6 +48,10 @@ else
             BOOTSTRAPPING=1
             shift
             ;;
+            --scenario)         # Let's check bootstrapping function
+            SCENARIO=1
+            shift
+            ;;
             --all)          # Execute all tests and save output in tests/ dir
             ALL=1
             shift
@@ -78,6 +82,8 @@ elif [ "$gentestvect" != "" ] && [ $gentestvect -eq 1 ]; then
     outputFile="gentestvect"
 elif [ "$BOOTSTRAPPING" != "" ] && [ $BOOTSTRAPPING -eq 1 ]; then
     outputFile="bootstrappingtest"
+elif [ "$SCENARIO" != "" ] && [ $SCENARIO -eq 1 ]; then
+    outputFile="scenariotest"
 elif [ "$ALL" != "" ] && [ $ALL -eq 1 ]; then
     for i in $(cat run.sh |grep  "\--" |awk '{print $1}' |head -n -5 |awk -F \) '{print $1}');do 
         [ ! -d tests/${i/--/}test/test.txt ] & mkdir -p "tests/${i/--/}test";
