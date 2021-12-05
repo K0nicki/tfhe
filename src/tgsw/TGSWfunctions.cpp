@@ -72,14 +72,15 @@ void tgswEncryptInt(TGSWSample *sample, int32_t message, double alpha, TGSWKey *
 template <int32_t N = DEF_N, int32_t l = DEF_l, int32_t bg = DEF_Bg>
 std::array<IntPolynomial *, 2 * l> decomposition(TLWESample *sample, TGSWParams *params)
 {
-    int32_t Bgbit = params->getBgbit();
-    uint32_t mask = params->getMask();
+    int32_t Bgbit = params->getBgbit();             //log2(decomposition base - power of 2)
+    uint32_t mask = params->getMask();              // (1 << BgBit) - 1
     int32_t halfBg = (1UL << (Bgbit - 1));
-    uint32_t offset = params->getOffset();
+    // offset = Bg/2 * (2^(32 - BgBit) + 2^(32 - 2*BgBit) + ... + 2^(32 - l*BgBit))
+    uint32_t offset = params->getOffset();              
 
     std::array<IntPolynomial *, 2 * l> decompVect;
-    for (int i = 0; i < decompVect.size(); i++)
-        decompVect[i] = new IntPolynomial;
+    for (int i = 0; i < decompVect.size(); i++)         
+        decompVect[i] = new IntPolynomial;          // Initialize with zeros 
 
     for (int i = 0; i < N; i++)
     {
@@ -101,15 +102,9 @@ std::array<IntPolynomial *, 2 * l> decomposition(TLWESample *sample, TGSWParams 
 
 void externalTgswProduct(TLWESample *result, TLWESample *tlweSample, TGSWSample *tgswSample, TGSWParams *params)
 {
-    std::array<FftPoly, 2 * DEF_l> decompVectFft;
-    std::array<FftPoly, 2> resultTlweFft;
-
     std::array<IntPolynomial *, 2 * DEF_l> decompVect;
-
     decompVect = decomposition(tlweSample, params);
 
     for (int i = 0; i < 2 * DEF_l; i++)
         tLweAddMulRTo(result, decompVect.at(i), tgswSample->getSampleAt(i), params->getTLWEParams());
-
-    result->setNoise(result->getNoise() + tlweSample->getNoise());
 }
