@@ -73,13 +73,7 @@ int main(int argc, char const *argv[])
             TorusPolynomial decrypt = tlweDecrypt(&result, key.getTLWEKey(), M);
 
             for (int i = 0; i < N; i++)
-            {
-                if (msg.getCoef(i) * multiplier != decrypt.getCoef(i))
-                    err++;
-
                 assert(msg.getCoef(i) * multiplier == decrypt.getCoef(i));
-                assert(switchFromTorus32(msg.getCoef(i) * multiplier, M) == switchFromTorus32(decrypt.getCoef(i), M));
-            }
 
             min = rand() % N;
             max = min + 1;
@@ -107,63 +101,49 @@ int main(int argc, char const *argv[])
             {
                 // -INT_MIN == INT_MAX + 1 == INT_MIN
                 // -0 == 0
-                if (msg.getCoef(i) * multiplier == decrypt.getCoef(i) && msg.getCoef(i) * multiplier != 0 && msg.getCoef(i) * multiplier != INT32_MIN)
-                    err++;
+                // if (msg.getCoef(i) * multiplier == decrypt.getCoef(i) && msg.getCoef(i) * multiplier != 0 && msg.getCoef(i) * multiplier != INT32_MIN)
+                //     err++;
 
                 assert(-msg.getCoef(i) * multiplier == decrypt.getCoef(i));
-                assert(switchFromTorus32(-msg.getCoef(i) * multiplier, M) == switchFromTorus32(decrypt.getCoef(i), M));
             }
 
-            min = rand() % N;
-            max = min + 1;
-            for (int i = min; i < max; i++)
-                std::cout << switchFromTorus32(msg.getCoef(i), M) << "*" << -multiplier << " == "
-                          << switchFromTorus32(-msg.getCoef(i) * multiplier, M) << " == " << switchFromTorus32(decrypt.getCoef(i), M) << std::endl;
 
         }
         std::cout << "Total errors: " << err << std::endl;
         std::cout << "Average External Product function execution time[s]: " << avgTime / trials / allParams1024.size() * 1e-6 / 2 << std::endl;
         std::cout << "External product test passed!" << std::endl;
 
-        // std::cout << "\nMaximum multiplication test!" << std::endl;
-        // int multiplier = 2;
+        std::cout << "\nMaximum multiplication test!" << std::endl;
+        int multiplier = 2;
 
-        // TorusPolynomial msg;
-        // TGSWSample tgswMultiplier{params};
-        // TLWESample resultLoop{params->getTLWEParams()};
-        // bool condition = true;
-        // int tmp = 2;
+        TorusPolynomial msg;
+        TGSWSample tgswMultiplier{params};
+        TLWESample resultLoop{params->getTLWEParams()};
+        bool condition = true;
+        int tmp = 2;
 
-        // TLWESample encrypt = tlweEncryptT(switchToTorus32(1, M), alpha, key.getTLWEKey());
+        TLWESample encrypt = tlweEncryptT(switchToTorus32(1, M), alpha, key.getTLWEKey());
 
-        // // encrypted 2
-        // tgswEncryptInt(&tgswMultiplier, multiplier, alpha, &key);
+        // encrypted 2
+        tgswEncryptInt(&tgswMultiplier, multiplier, alpha, &key);
 
-        // while (condition)
-        // {
-        //     // Clear resultLoop 
-        //     tlweClear(&resultLoop, params->getTLWEParams());
+        while (condition)
+        {
+            // Clear resultLoop 
+            tlweClear(&resultLoop, params->getTLWEParams());
             
-        //     externalTgswProduct(&resultLoop, &encrypt, &tgswMultiplier, params);
-        //     Torus32 decrypt = tlweDecryptT(&resultLoop, key.getTLWEKey(), M);
+            externalTgswProduct(&resultLoop, &encrypt, &tgswMultiplier, params);
+            Torus32 decrypt = tlweDecryptT(&resultLoop, key.getTLWEKey(), M);
 
-        //     if (switchFromTorus32(decrypt, M) != tmp % M)
-        //     {
-        //         condition = false;
-        //         std::cout << "Round: " << tmp << std::endl
-        //                     << "\t" << switchFromTorus32(decrypt, M) << " v " << tmp % M << std::endl
-        //                     << "\t" << decrypt << " v " << switchToTorus32(tmp, M) << std::endl;
-        //     }
+            if (switchFromTorus32(decrypt, M) != tmp % M)
+                break;
 
-        //     if (!condition)
-        //         break;
-
-        //     // If decryption is correct replace encrypt0 with resultLoop and increment tmp value
-        //     tlweCopy(&encrypt, &resultLoop, params->getTLWEParams());
-        //     tmp *= multiplier;
-        // }
-        // std::cout << "\nMaximum number of multiplication operations is: " << log2(tmp) << std::endl;
-        // std::cout << "Noise lvl: " << resultLoop.getNoise() << std::endl;           // Too low noise, check it later
+            // If decryption is correct replace encrypt0 with resultLoop and increment tmp value
+            tlweCopy(&encrypt, &resultLoop, params->getTLWEParams());
+            tmp *= multiplier;
+        }
+        std::cout << "\nMaximum number of multiplication operations is: " << log2(tmp) << std::endl;
+        std::cout << "Noise lvl: " << resultLoop.getNoise() << std::endl;           // Too low noise, check it later
     }
     return 0;
 }

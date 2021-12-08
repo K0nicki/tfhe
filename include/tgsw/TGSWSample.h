@@ -6,10 +6,10 @@
 class TGSWSample
 {
 private:
-    std::array<TLWESample*, 2*DEF_l> all_samples;
-    // TLWESample* all_samples; // A pointer to the first element in array of TLWE Samples
-    int32_t k;
-    int32_t l;
+    // Instead of 3D matrix do 2D matrix with twice length
+    std::array<TLWESample*, 2*DEF_l> all_samples;   
+    int32_t k;  // number of polynomials in masl
+    int32_t l;  // Decomposition matrix depth
 public:
     std::array<TLWESample*, 2*DEF_l> getCoefAsArray();
     TLWESample* getSampleAt(int i);
@@ -20,3 +20,5 @@ public:
     TGSWSample(TGSWParams* params);
     ~TGSWSample();
 };
+
+

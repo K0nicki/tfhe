@@ -79,11 +79,6 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < N; i++)
                 assert((message.getCoef(i) + msg2.getCoef(i)) == decrypt.getCoef(i));
-
-            int min = rand() % N;
-            int max = min + 1;
-            for (int i = min; i < max; i++)
-                assert(switchFromTorus32(message.getCoef(i) + msg2.getCoef(i), M) == switchFromTorus32(decrypt.getCoef(i), M));
         }
 
         std::cout << "ADDITION PASS! " << std::endl;
@@ -115,18 +110,13 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < N; i++)
                 assert((message.getCoef(i) - msg2.getCoef(i)) == decrypt.getCoef(i));
-
-            int min = rand() % N;
-            int max = min + 1;
-            for (int i = min; i < max; i++)
-                assert(switchFromTorus32(message.getCoef(i) - msg2.getCoef(i), M) == switchFromTorus32(decrypt.getCoef(i), M));
         }
 
         std::cout << "SUBTRACTION PASS! " << std::endl;
         std::cout << "Average subtraction time[s]: " << avgTime / trials * 1e-6 << std::endl;
         std::cout << std::endl;
 
-        std::cout << "MAX ADDITION TEST\n"
+        std::cout << "MAX ADDITION TEST"
                   << std::endl;
 
         TLWEKey tlwekey{params};
@@ -140,7 +130,7 @@ int main(int argc, char const *argv[])
         int tmp = 1;
         bool condition = true;
 
-        while (condition)
+        while (true)
         {
             start = std::chrono::system_clock::now();
             // ----------------------------------------------------------
@@ -153,23 +143,16 @@ int main(int argc, char const *argv[])
             Torus32 res = tlweDecryptT(&encrypt0, &tlwekey, M);
 
             if (switchFromTorus32(res, M) != msg0 % M)
-            {
-                condition = false;
-                // std::cout << "|" << tmp << "|\n\t" << switchFromTorus32(res, M) << " v " << msg0 % M << std::endl
-                //           << "\t" << res << " v " << switchToTorus32(msg0, M) << std::endl;
-            }
-
-            if (!condition)
                 break;
 
             tmp++;
         }
 
-        std::cout << "\nMaximum number of addition operations is: " << tmp << std::endl;
+        std::cout << "Maximum number of addition operations is: " << tmp << std::endl;
         std::cout << "Avg time [s]: " << avgTime / tmp * 1e-6 << std::endl;
-        std::cout << "Noise lvl: " << encrypt0.getNoise() << std::endl;
+        // std::cout << "Noise lvl: " << encrypt0.getNoise() << std::endl;
 
-        std::cout << "\nMAX SUBSTRACTION TEST\n"
+        std::cout << "\nMAX SUBSTRACTION TEST"
                   << std::endl;
 
         msg0 = 0;
@@ -192,21 +175,14 @@ int main(int argc, char const *argv[])
             Torus32 res = tlweDecryptT(&encrypt0, &tlwekey, M);
 
             if (res != switchToTorus32(msg0, M))
-            {
-                condition = false;
-                // std::cout << "|" << tmp << "|\n\t" << switchFromTorus32(res, M) << " v " << msg0 % M << std::endl
-                //           << "\t" << res << " v " << switchToTorus32(msg0, M) << std::endl;
-            }
-
-            if (!condition)
                 break;
 
             tmp++;
         }
 
-        std::cout << "\nMaximum number of substraction operations is: " << tmp << std::endl;
-        std::cout << "Avg time [s]: " << avgTime / tmp * 1e-6 << std::endl;
-        std::cout << "Noise lvl: " << encrypt0.getNoise() << std::endl;
+        std::cout << "Maximum number of substraction operations is: " << tmp << std::endl;
+        std::cout << "Avg time [s]: " << avgTime / tmp * 1e-6 << std::endl << std::endl;
+        // std::cout << "Noise lvl: " << encrypt0.getNoise() << std::endl;
     }
     return 0;
 }

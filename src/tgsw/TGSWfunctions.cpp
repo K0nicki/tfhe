@@ -100,11 +100,13 @@ std::array<IntPolynomial *, 2 * l> decomposition(TLWESample *sample, TGSWParams 
     return decompVect;
 }
 
+// TLWE = TLWE * TGSW
 void externalTgswProduct(TLWESample *result, TLWESample *tlweSample, TGSWSample *tgswSample, TGSWParams *params)
 {
     std::array<IntPolynomial *, 2 * DEF_l> decompVect;
     decompVect = decomposition(tlweSample, params);
 
+    // result += decomp[i]*TGSW[i];
     for (int i = 0; i < 2 * DEF_l; i++)
-        tLweAddMulRTo(result, decompVect.at(i), tgswSample->getSampleAt(i), params->getTLWEParams());
+        tLweAddMulRTo(result, decompVect.at(i), tgswSample->getSampleAt(i), params->getTLWEParams());   
 }

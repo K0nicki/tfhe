@@ -4,7 +4,6 @@
 // res = cs ? d1 : d0
 void cMux(TLWESample *result, TGSWSample *cs, TLWESample *d1, TLWESample *d0, TGSWParams *params)
 {
-    int32_t N = params->getTLWEParams()->getDegree();
     TLWEParams *tlweParams = params->getTLWEParams();
     TLWESample d1md0{params->getTLWEParams()};
     TLWESample csResult{params->getTLWEParams()};
@@ -19,39 +18,6 @@ void cMux(TLWESample *result, TGSWSample *cs, TLWESample *d1, TLWESample *d0, TG
     tlweAdd(result, &csResult, d0, tlweParams);
 }
 
-void rotate(TLWESample *result, TLWESample *d0, LWESample *lweSample, GateKey *gateKey)
-{
-    int32_t N2 = 2 * gateKey->getTGSWParams()->getTLWEParams()->getDegree();
-    int32_t k = gateKey->getTGSWParams()->getTLWEParams()->getPolyAmount();
-    TGSWParams *tgswparams = gateKey->getTGSWParams();
-    TLWEParams *tlweParams = tgswparams->getTLWEParams();
-
-    for (int i = 0; i < DEF_N; i++)
-    {
-        TLWESample d1{tlweParams};
-        TLWESample cMuxResult{tlweParams};
-
-        // compute ai
-        int32_t a_til = switchFromTorus32(lweSample->getA(i), N2);
-
-        if (a_til == 0)
-            continue; // Don't even try to rotate by 0 positions!
-
-        // Prepare rotated testvect by ai position in case of bk(si) is 1
-        for (int j = 0; j <= k; j++)
-            polyMulByX_i(d1.getA(j), d0->getA(j), a_til);
-
-        // Blind Rotation - keep secret key encrypted in tgsw format but nevertheless perform rotation using CMUX gate
-        // bk(si) ? d1 : d0
-        cMux(&cMuxResult, gateKey->getBootstrappingKey()->getSampleAt(i), &d1, d0, tgswparams);
-
-        // Override testvect with rotated (or not) testvect
-        tlweCopy(d0, &cMuxResult, tlweParams);
-    }
-
-    tlweCopy(result, d0, tlweParams);
-}
-
 void blindRotate(TLWESample *result, TLWESample *testvect, LWESample *lweSample, GateKey *gateKey)
 {
     TGSWParams *tgswparams = gateKey->getTGSWParams();
@@ -59,13 +25,15 @@ void blindRotate(TLWESample *result, TLWESample *testvect, LWESample *lweSample,
     int32_t N2 = 2 * gateKey->getTGSWParams()->getTLWEParams()->getDegree();
     int32_t k = gateKey->getTGSWParams()->getTLWEParams()->getPolyAmount();
 
-    // To perform rotation correctly we need to rotate tlwesample by -b + sum(ai * bk(si))
-
+    // To perform rotation correctly we need to rotate TLWESample by -b + sum(ai * bk(si))
     int32_t barab = switchFromTorus32(lweSample->getB(), N2);
     int32_t b_til = N2 - barab; // compute -b
 
     TLWESample d0{tlweParams};
     TLWESample res{tlweParams};
+    TLWESample d1{tlweParams};
+    TLWESample cMuxResult{tlweParams};
+    int32_t a_til = 0;
 
     // Rotate testvect by well known -b parameter
     if (barab != 0)
@@ -75,7 +43,29 @@ void blindRotate(TLWESample *result, TLWESample *testvect, LWESample *lweSample,
         tlweCopy(&d0, testvect, tlweParams);
 
     // Perform a real bind rotation
-    rotate(result, &d0, lweSample, gateKey);
+    for (int i = 0; i < DEF_N; i++)
+    {
+        tlweClear(&d1, tlweParams);
+        tlweClear(&cMuxResult, tlweParams);
+
+        // compute ai
+        a_til = switchFromTorus32(lweSample->getA(i), N2);
+
+        if (a_til == 0)
+            continue; // Don't even try to rotate by 0 positions!
+
+        // Prepare rotated testvect by ai position in case of bk(si) is 1
+        for (int j = 0; j <= k; j++)
+            polyMulByX_i(d1.getA(j), d0.getA(j), a_til);
+
+        // Blind Rotation - keep secret key encrypted in tgsw format but nevertheless perform rotation using CMUX gate
+        // bk(si) ? d1 : d0
+        cMux(&cMuxResult, gateKey->getBootstrappingKey()->getSampleAt(i), &d1, &d0, tgswparams);
+
+        // Override testvect with rotated (or not) testvect
+        tlweCopy(&d0, &cMuxResult, tlweParams);
+    }
+    tlweCopy(result, &d0, tlweParams);
 }
 
 void keySwitch(LWESample *result, LWESample *source, GateKey *gk)

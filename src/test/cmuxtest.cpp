@@ -103,36 +103,36 @@ int main(int argc, char const *argv[])
     }
     std::cout << " CMUX test passed!" << std::endl;
 
-    // // Never ending loop
-    // TGSWSample cs{&tgswParams1024_1};
-    // TLWESample result{tgswParams1024_1.getTLWEParams()};
-    // TGSWKey key{&tgswParams1024_1};
-    // tgswKeyGen(&key);
+    // Never ending loop
+    TGSWSample cs1{&tgswParams1024_1};
+    TLWESample result{tgswParams1024_1.getTLWEParams()};
+    TGSWKey key{&tgswParams1024_1};
+    tgswKeyGen(&key);
 
-    // tgswEncryptInt(&cs, 1, alpha, &key);
-    // TLWESample d0 = tlweEncryptT(switchToTorus32(0, M), alpha, key.getTLWEKey());
-    // TLWESample d1 = tlweEncryptT(switchToTorus32(1, M), alpha, key.getTLWEKey());
-    // bool condition = true;
-    // int32_t loop = 1;
+    tgswEncryptInt(&cs1, 1, alpha, &key);
+    TLWESample d0 = tlweEncryptT(switchToTorus32(0, M), alpha, key.getTLWEKey());
+    TLWESample d1 = tlweEncryptT(switchToTorus32(1, M), alpha, key.getTLWEKey());
+    bool condition = true;
+    int32_t loop = 1;
 
-    // while (condition)
-    // {
-    //     cMux(&result, &cs, &d1, &d0, &tgswParams1024_1);
+    while (condition)
+    {
+        cMux(&result, &cs1, &d1, &d0, &tgswParams1024_1);
 
-    //     if (tlweDecryptT(&result, key.getTLWEKey(), M) != switchToTorus32(1, M))
-    //         condition = !condition;
+        if (tlweDecryptT(&result, key.getTLWEKey(), M) != switchToTorus32(1, M))
+            condition = !condition;
 
-    //     if (!condition)
-    //         break;        
+        if (!condition)
+            break;        
 
-    //     tlweCopy(&d1, &result, tgswParams1024_1.getTLWEParams());
-    //     tlweClear(&result, tgswParams1024_1.getTLWEParams());
-    //     loop++;
-    // }
+        tlweCopy(&d1, &result, tgswParams1024_1.getTLWEParams());
+        tlweClear(&result, tgswParams1024_1.getTLWEParams());
+        loop++;
+    }
 
-    // std::cout << "\nMaximum number of substraction operations is: " << loop << std::endl;
+    std::cout << "\nMaximum number of substraction operations is: " << loop << std::endl;
     // std::cout << "Noise :" <<  alpha << std::endl;
-    // std::cout << "Avg time [s]: " << avgTime / loop * 1e-6 << std::endl;
+    std::cout << "Avg time [s]: " << avgTime / loop * 1e-6 << std::endl;
     
     return 0;
 }
